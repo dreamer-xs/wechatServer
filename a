@@ -1,0 +1,24 @@
+new client connect
+接收消息:
+---------------原始接收数据----------------------
+"<xml><ToUserName><![CDATA[gh_5a42d45d5ea2]]></ToUserName>\n<FromUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></FromUserName>\n<CreateTime>1554785008</CreateTime>\n<MsgType><![CDATA[image]]></MsgType>\n<PicUrl><![CDATA[http://mmbiz.qpic.cn/mmbiz_jpg/oyWfaXjeMarZC0sSSYGN0qF666xekcXNIrrQLmEap7OEbkpnWsib20pjTds6qW4kxicxF6RL08F6MP8qo0AKPaQg/0]]></PicUrl>\n<MsgId>22259167579312567</MsgId>\n<MediaId><![CDATA[VemtRvl-feKjmc-pku1y9vyIPxnbRS3wkA3xQWQ75QUDteemJl-YHyMBhc0TkB_y]]></MediaId>\n</xml>"
+-----------------------------------------
+----------------修改后数据-----------------------
+"<xml>\n <FromUserName><![CDATA[gh_5a42d45d5ea2]]></FromUserName>\n <ToUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></ToUserName>\n <CreateTime>1554785008</CreateTime>\n <MsgType><![CDATA[image]]></MsgType>\n <PicUrl><![CDATA[http://mmbiz.qpic.cn/mmbiz_jpg/oyWfaXjeMarZC0sSSYGN0qF666xekcXNIrrQLmEap7OEbkpnWsib20pjTds6qW4kxicxF6RL08F6MP8qo0AKPaQg/0]]></PicUrl>\n <MsgId>22259167579312567</MsgId>\n <MediaId><![CDATA[VemtRvl-feKjmc-pku1y9vyIPxnbRS3wkA3xQWQ75QUDteemJl-YHyMBhc0TkB_y]]></MediaId>\n</xml>\n"
+-----------------------------------------
+"<xml>\n <FromUserName><![CDATA[gh_5a42d45d5ea2]]></FromUserName>\n <ToUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></ToUserName>\n <CreateTime>1554785008</CreateTime>\n <MsgType><![CDATA[image]]></MsgType>\n <PicUrl><![CDATA[http://mmbiz.qpic.cn/mmbiz_jpg/oyWfaXjeMarZC0sSSYGN0qF666xekcXNIrrQLmEap7OEbkpnWsib20pjTds6qW4kxicxF6RL08F6MP8qo0AKPaQg/0]]></PicUrl>\n <MsgId>22259167579312567</MsgId>\n <MediaId><![CDATA[VemtRvl-feKjmc-pku1y9vyIPxnbRS3wkA3xQWQ75QUDteemJl-YHyMBhc0TkB_y]]></MediaId>\n</xml>\n"
+----------------发送数据----------------------
+发送消息:
+"httpHead/1.1 200 OK\r\nServer: nginx\r\nContent-Type: application/octet-stream;charset=utf-8\r\nConnection: keep-alive\r\nContent-Length: 496\r\n\r\n"
+"<xml>
+<FromUserName><![CDATA[gh_5a42d45d5ea2]]></FromUserName>
+<ToUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></ToUserName>
+<CreateTime>1554785008</CreateTime>
+<MsgType><![CDATA[image]]></MsgType>
+<PicUrl><![CDATA[http://mmbiz.qpic.cn/mmbiz_jpg/oyWfaXjeMarZC0sSSYGN0qF666xekcXNIrrQLmEap7OEbkpnWsib20pjTds6qW4kxicxF6RL08F6MP8qo0AKPaQg/0]]></PicUrl>
+<MsgId>22259167579312567</MsgId>
+<MediaId><![CDATA[VemtRvl-feKjmc-pku1y9vyIPxnbRS3wkA3xQWQ75QUDteemJl-YHyMBhc0TkB_y]]></MediaId>
+</xml>
+"
+client disconnect
+

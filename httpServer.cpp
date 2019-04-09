@@ -97,20 +97,39 @@ void Server::dealMessage(QString recvData)
     QString head = dataList.at(0);
     QString body = dataList.at(1);
 
-    qDebug()<<"-----------------------------------------";
+    qDebug()<<"---------------原始接收数据----------------------";
     qDebug()<<body;
     qDebug()<<"-----------------------------------------";
 
     //解析微信xml
-    qDebug()<<"-----------------------------------------";
+    qDebug()<<"----------------修改后数据-----------------------";
     QDomDocument xml;
     xml.setContent(body);
+
     //读取根元素<xml>
     QDomElement root = xml.documentElement(); 
    
+    QStringList listSrc = {"ToUserName", "FromUserName"};
+    QStringList listTmp = {"FromUserName_tmp", "ToUserName_tmp"};
+    QStringList listDst = {"FromUserName", "ToUserName"};
+    for(int i=0;i<listSrc.size();i++)
+    {
+        QDomElement node = root.firstChildElement(listSrc.at(i));
+        node.setTagName(listTmp.at(i));
+    }
+    for(int i=0;i<listSrc.size();i++)
+    {
+        QDomElement node = root.firstChildElement(listTmp.at(i));
+        node.setTagName(listDst.at(i));
+    }
+    qDebug()<<xml.toString();
+
+    //将修改后的xml转成QString
+    QString httpBody(xml.toString());
+
+    qDebug()<<"-----------------------------------------";
+#if 0
     QMap<QString, QString> xmlMap;
-    //QStringList keyList = {"ToUserName", "FromUserName", "CreateTime", "MsgType", "Content", "MsgId"};
-    //QStringList valueList;
     xmlMap["ToUserName"] = "1";
     xmlMap["FromUserName"] = "2";
     xmlMap["CreateTime"] = "3";
@@ -134,6 +153,7 @@ void Server::dealMessage(QString recvData)
     httpBody += QString("<MsgType><![CDATA[%1]]></MsgType>\n").arg(xmlMap["MsgType"]);
     httpBody += QString("<Content><![CDATA[%1]]></Content>\n").arg(xmlMap["Content"]);
     httpBody += "</xml>";
+#endif
 
     qDebug()<<httpBody;
 
@@ -148,7 +168,7 @@ void Server::dealMessage(QString recvData)
     */
 
 
-    qDebug()<<"-----------------------------------------";
+    qDebug()<<"----------------发送数据----------------------";
 
     //sendMessage(body);
     sendMessage(httpBody);
