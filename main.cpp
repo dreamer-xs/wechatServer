@@ -8,8 +8,6 @@
 int main(int argc, char **argv)
 {
     LOG_INIT;
-    StreamParseXml xml;
-    xml.writeXml();
 
     QCoreApplication a(argc, argv);
     Server *piServer = new Server;
