@@ -36,6 +36,7 @@ void Server::newClientConnect()
 //      Content-Length: 283
 //      Content-Type: text/xml
 //      
+//      //text
 //      <xml><ToUserName><![CDATA[gh_5a42d45d5ea2]]></ToUserName> 公众号
 //      <FromUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></FromUserName> 粉丝号
 //      <CreateTime>1554721572</CreateTime> 粉丝发送该消息的具体时间
@@ -44,9 +45,7 @@ void Server::newClientConnect()
 //      <MsgId>22258263273163261</MsgId> 记录识别该消息的一个标记数值
 //      </xml>"
 //      
-//      
-//      
-//      回复格式
+//      //回复text
 //      <xml>
 //      <ToUserName><![CDATA[粉丝号]]></ToUserName>
 //      <FromUserName><![CDATA[公众号]]></FromUserName>
@@ -54,19 +53,50 @@ void Server::newClientConnect()
 //      <MsgType><![CDATA[text]]></MsgType>
 //      <Content><![CDATA[test]]></Content>
 //      </xml>
+//
+//      //接收media
+//      <xml>
+//      <ToUserName><![CDATA[公众号]]></ToUserName>
+//      <FromUserName><![CDATA[粉丝号]]></FromUserName>
+//      <CreateTime>1460536575</CreateTime>
+//      <MsgType><![CDATA[image]]></MsgType>
+//      <PicUrl><![CDATA[http://mmbiz.qpic.cn/xxxxxx /0]]></PicUrl>
+//      <MsgId>6272956824639273066</MsgId>
+//      <MediaId><![CDATA[gyci5a-xxxxx-OL]]></MediaId>
+//      </xml>
+//
+//      //回复media
+//      <xml>
+//      <ToUserName><![CDATA[粉丝号]]></ToUserName>
+//      <FromUserName><![CDATA[公众号]]></FromUserName>
+//      <CreateTime>1460536576</CreateTime>
+//      <MsgType><![CDATA[image]]></MsgType>
+//      <Image>
+//      <MediaId><![CDATA[gyci5oxxxxxxv3cOL]]></MediaId>
+//      </Image>
+//      </xml>
+//      
+//      //取消关注
+//      <xml><ToUserName><![CDATA[gh_5a42d45d5ea2]]></ToUserName>
+//      <FromUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></FromUserName>
+//      <CreateTime>1554804530</CreateTime>
+//      <MsgType><![CDATA[event]]></MsgType>
+//      <Event><![CDATA[unsubscribe]]></Event>
+//      <EventKey><![CDATA[]]></EventKey>
+//      </xml>
+//
+//      //关注
+//      <xml><ToUserName><![CDATA[gh_5a42d45d5ea2]]></ToUserName>
+//      <FromUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></FromUserName>
+//      <CreateTime>1554804610</CreateTime>
+//      <MsgType><![CDATA[event]]></MsgType>
+//      <Event><![CDATA[subscribe]]></Event>
+//      <EventKey><![CDATA[]]></EventKey>
+//      </xml>
 
 void Server::sendMessage(QString httpBody)
-//void Server::sendMessage(QString body)
 {
-    /*
-    QString httpBody = "<xml>";
-    httpBody += "<ToUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></ToUserName>\n";
-    httpBody += "<FromUserName><![CDATA[gh_5a42d45d5ea2]]></FromUserName>\n";
-    httpBody += "<CreateTime>1460541339</CreateTime>\n";
-    httpBody += "<MsgType><![CDATA[text]]></MsgType>\n";
-    httpBody += "<Content><![CDATA[帅哥好！]]></Content>\n";
-    httpBody += "</xml>";
-    */
+    qDebug()<<"----------------发送数据----------------------";
 
     QString httpHead = "httpHead/1.1 200 OK\r\n";
     httpHead += "Server: nginx\r\n";
@@ -83,9 +113,281 @@ void Server::sendMessage(QString httpBody)
     httpData.append(httpHead);
     httpData.append(httpBody);
 
-    //QByteArray httpBodyByte = httpBody.toUtf8();
-
     m_pisocket->write(httpData);
+}
+
+void Server::dealTextMessage1(QDomDocument xml)
+{
+    //读取根元素<xml>
+    QDomElement root = xml.documentElement(); 
+
+    //获取msgtype类型
+    QDomElement node = root.firstChildElement("ToUserName");
+    QString toUserName = node.text();
+    node = root.firstChildElement("FromUserName");
+    QString fromUserName = node.text();
+    node = root.firstChildElement("CreateTime");
+    QString createTime = node.text();
+    node = root.firstChildElement("MsgType");
+    QString msgType = node.text();
+
+    qDebug()<<toUserName;
+    qDebug()<<fromUserName;
+    qDebug()<<createTime;
+
+    QDomDocument xmlRoot("");
+    QDomElement xmlNode= xmlRoot.createElement("xml");
+    xmlRoot.appendChild(xmlNode);
+     
+    //创建一个元素标签节点
+    node = xmlRoot.createElement("FromUserName");
+    xmlNode.appendChild(node);
+    //将CDATAS元素加入创建的元素节点 value
+    QDomCDATASection t = xmlRoot.createCDATASection(toUserName);
+    node.appendChild(t);
+
+    node = xmlRoot.createElement("ToUserName");
+    xmlNode.appendChild(node);
+    t = xmlRoot.createCDATASection(fromUserName);
+    node.appendChild(t);
+     
+    node = xmlRoot.createElement("CreateTime");
+    xmlNode.appendChild(node);
+    QDomText time  = xmlRoot.createTextNode(createTime);
+    node.appendChild(time);
+
+    node = xmlRoot.createElement("MsgType");
+    xmlNode.appendChild(node);
+    t = xmlRoot.createCDATASection("text");
+    node.appendChild(t);
+
+    node = xmlRoot.createElement("Content");
+    xmlNode.appendChild(node);
+    t = xmlRoot.createCDATASection("收到！");
+    node.appendChild(t);
+
+    QString xmlString = xmlRoot.toString();
+
+    qDebug()<<"----------------修改后数据-----------------------";
+    qDebug()<<xmlString;
+
+    sendMessage(xmlString);
+}
+
+void Server::dealTextMessage(QDomDocument xml)
+{
+    //读取根元素<xml>
+    QDomElement root = xml.documentElement(); 
+
+    //获取msgtype类型
+    QDomElement node = root.firstChildElement("ToUserName");
+    QString toUserName = node.text();
+    node = root.firstChildElement("FromUserName");
+    QString fromUserName = node.text();
+    node = root.firstChildElement("CreateTime");
+    QString createTime = node.text();
+    node = root.firstChildElement("MsgType");
+    QString msgType = node.text();
+    node = root.firstChildElement("Content");
+    QString content = node.text();
+    node = root.firstChildElement("MsgId");
+    QString msgId = node.text();
+
+    qDebug()<<toUserName;
+    qDebug()<<fromUserName;
+    qDebug()<<createTime;
+    qDebug()<<msgType;
+    qDebug()<<content;
+    qDebug()<<msgId;
+
+    QDomDocument xmlRoot("");
+    QDomElement xmlNode= xmlRoot.createElement("xml");
+    xmlRoot.appendChild(xmlNode);
+     
+    //创建一个元素标签节点
+    node = xmlRoot.createElement("FromUserName");
+    xmlNode.appendChild(node);
+    //将CDATAS元素加入创建的元素节点 value
+    QDomCDATASection t = xmlRoot.createCDATASection(toUserName);
+    node.appendChild(t);
+
+    node = xmlRoot.createElement("ToUserName");
+    xmlNode.appendChild(node);
+    t = xmlRoot.createCDATASection(fromUserName);
+    node.appendChild(t);
+     
+    node = xmlRoot.createElement("CreateTime");
+    xmlNode.appendChild(node);
+    QDomText time  = xmlRoot.createTextNode(createTime);
+    node.appendChild(time);
+
+    node = xmlRoot.createElement("MsgType");
+    xmlNode.appendChild(node);
+    t = xmlRoot.createCDATASection(msgType);
+    node.appendChild(t);
+
+    node = xmlRoot.createElement("Content");
+    xmlNode.appendChild(node);
+    t = xmlRoot.createCDATASection(content);
+    node.appendChild(t);
+
+    QString xmlString = xmlRoot.toString();
+
+    qDebug()<<"----------------修改后数据-----------------------";
+    qDebug()<<xmlString;
+
+    sendMessage(xmlString);
+}
+
+void Server::dealEventMessage(QDomDocument xml)
+{
+    //读取根元素<xml>
+    QDomElement root = xml.documentElement(); 
+
+    //获取msgtype类型
+    QDomElement node = root.firstChildElement("ToUserName");
+    QString toUserName = node.text();
+    node = root.firstChildElement("FromUserName");
+    QString fromUserName = node.text();
+    node = root.firstChildElement("CreateTime");
+    QString createTime = node.text();
+    node = root.firstChildElement("MsgType");
+    QString msgType = node.text();
+    node = root.firstChildElement("Event");
+    QString event = node.text();
+    node = root.firstChildElement("EventKey");
+    QString eventKey = node.text();
+
+    qDebug()<<toUserName;
+    qDebug()<<fromUserName;
+    qDebug()<<createTime;
+    qDebug()<<msgType;
+    qDebug()<<event;
+    qDebug()<<eventKey;
+
+
+    QDomDocument xmlRoot("");
+    QDomElement xmlNode= xmlRoot.createElement("xml");
+    xmlRoot.appendChild(xmlNode);
+     
+    //创建一个元素标签节点
+    node = xmlRoot.createElement("FromUserName");
+    xmlNode.appendChild(node);
+    //将CDATAS元素加入创建的元素节点 value
+    QDomCDATASection t = xmlRoot.createCDATASection(toUserName);
+    node.appendChild(t);
+
+    node = xmlRoot.createElement("ToUserName");
+    xmlNode.appendChild(node);
+    t = xmlRoot.createCDATASection(fromUserName);
+    node.appendChild(t);
+     
+    node = xmlRoot.createElement("CreateTime");
+    xmlNode.appendChild(node);
+    QDomText time  = xmlRoot.createTextNode(createTime);
+    node.appendChild(time);
+
+    node = xmlRoot.createElement("MsgType");
+    xmlNode.appendChild(node);
+    t = xmlRoot.createCDATASection(msgType);
+    node.appendChild(t);
+
+    //关注后回复
+    if(QString::compare(event, "subscribe") == 0)
+    {
+        node = xmlRoot.createElement("Content");
+        xmlNode.appendChild(node);
+        t = xmlRoot.createCDATASection("老板，您来啦");
+        node.appendChild(t);
+    }
+    else if(QString::compare(event, "unsubscribe") == 0)
+    {
+        node = xmlRoot.createElement("Content");
+        xmlNode.appendChild(node);
+        t = xmlRoot.createCDATASection("老板，您走啦");
+        node.appendChild(t);
+    }
+
+    QString xmlString = xmlRoot.toString();
+
+    qDebug()<<"----------------修改后数据-----------------------";
+    qDebug()<<xmlString;
+
+    sendMessage(xmlString);
+    
+}
+
+void Server::dealImageMessage(QDomDocument xml)
+{
+    //读取根元素<xml>
+    QDomElement root = xml.documentElement(); 
+
+    //获取msgtype类型
+    QDomElement node = root.firstChildElement("ToUserName");
+    QString toUserName = node.text();
+    node = root.firstChildElement("FromUserName");
+    QString fromUserName = node.text();
+    node = root.firstChildElement("CreateTime");
+    QString createTime = node.text();
+    node = root.firstChildElement("MsgType");
+    QString msgType = node.text();
+    node = root.firstChildElement("PicUrl");
+    QString picUrl = node.text();
+    node = root.firstChildElement("MediaId");
+    QString mediaId = node.text();
+
+    qDebug()<<toUserName;
+    qDebug()<<fromUserName;
+    qDebug()<<createTime;
+    qDebug()<<msgType;
+    qDebug()<<picUrl;
+    qDebug()<<mediaId;
+
+    QDomDocument xmlRoot("");
+    QDomElement xmlNode= xmlRoot.createElement("xml");
+    xmlRoot.appendChild(xmlNode);
+     
+    //创建一个元素标签节点
+    node = xmlRoot.createElement("FromUserName");
+    xmlNode.appendChild(node);
+    //将CDATAS元素加入创建的元素节点 value
+    QDomCDATASection t = xmlRoot.createCDATASection(toUserName);
+    node.appendChild(t);
+
+    node = xmlRoot.createElement("ToUserName");
+    xmlNode.appendChild(node);
+    t = xmlRoot.createCDATASection(fromUserName);
+    node.appendChild(t);
+     
+    node = xmlRoot.createElement("CreateTime");
+    xmlNode.appendChild(node);
+    QDomText time  = xmlRoot.createTextNode(createTime);
+    node.appendChild(time);
+
+    node = xmlRoot.createElement("MsgType");
+    xmlNode.appendChild(node);
+    t = xmlRoot.createCDATASection(msgType);
+    node.appendChild(t);
+
+    node = xmlRoot.createElement("Image");
+    xmlNode.appendChild(node);
+    QDomElement subNode = xmlRoot.createElement("MediaId");
+    node.appendChild(subNode);
+    t = xmlRoot.createCDATASection(mediaId);
+    subNode.appendChild(t);
+
+    QString xmlString = xmlRoot.toString();
+
+    qDebug()<<"----------------修改后数据-----------------------";
+    qDebug()<<xmlString;
+
+    sendMessage(xmlString);
+
+}
+
+void Server::dealVoiceMessage(QDomDocument xml)
+{
+    dealTextMessage1(xml);
 }
 
 void Server::dealMessage(QString recvData)
@@ -102,91 +404,47 @@ void Server::dealMessage(QString recvData)
     qDebug()<<"-----------------------------------------";
 
     //解析微信xml
-    qDebug()<<"----------------修改后数据-----------------------";
     QDomDocument xml;
     xml.setContent(body);
 
     //读取根元素<xml>
     QDomElement root = xml.documentElement(); 
-   
-    QStringList listSrc = {"ToUserName", "FromUserName"};
-    QStringList listTmp = {"FromUserName_tmp", "ToUserName_tmp"};
-    QStringList listDst = {"FromUserName", "ToUserName"};
-    for(int i=0;i<listSrc.size();i++)
-    {
-        QDomElement node = root.firstChildElement(listSrc.at(i));
-        node.setTagName(listTmp.at(i));
-    }
-    for(int i=0;i<listSrc.size();i++)
-    {
-        QDomElement node = root.firstChildElement(listTmp.at(i));
-        node.setTagName(listDst.at(i));
-    }
-    qDebug()<<xml.toString();
 
-    //将修改后的xml转成QString
-    QString httpBody(xml.toString());
+    //获取msgtype类型
+    QDomElement node = root.firstChildElement("MsgType");
+    QString msgType = node.text();
 
-    qDebug()<<"-----------------------------------------";
-#if 0
-    QMap<QString, QString> xmlMap;
-    xmlMap["ToUserName"] = "1";
-    xmlMap["FromUserName"] = "2";
-    xmlMap["CreateTime"] = "3";
-    xmlMap["MsgType"] = "4";
-    xmlMap["Content"] = "5";
-    xmlMap["MsgId"] = "6";
-
-    QMap<QString, QString>::const_iterator i = xmlMap.constBegin();
-    while (i != xmlMap.constEnd()) 
-    {
-        QDomElement node = root.firstChildElement(i.key());
-        xmlMap.insert(i.key(),node.text());
-        qDebug()<< i.key() << ": " << i.value();
-        ++i;
-    }
-
-    QString httpBody = "<xml>";
-    httpBody += QString("<ToUserName><![CDATA[%1]]></ToUserName>\n").arg(xmlMap["FromUserName"]);
-    httpBody += QString("<FromUserName><![CDATA[%1]]></FromUserName>\n").arg(xmlMap["ToUserName"]);
-    httpBody += QString("<CreateTime>%1</CreateTime>\n").arg(xmlMap["CreateTime"]);
-    httpBody += QString("<MsgType><![CDATA[%1]]></MsgType>\n").arg(xmlMap["MsgType"]);
-    httpBody += QString("<Content><![CDATA[%1]]></Content>\n").arg(xmlMap["Content"]);
-    httpBody += "</xml>";
-#endif
-
-    qDebug()<<httpBody;
-
+    //类型集合
+    QStringList msgTypeList = {"text", "image", "event", "voice"};
     /*
-    for(int i=0; i<keyList.size(); i++)
+     * text = 0
+     * image = 1
+     * event = 2
+     * voice = 3
+     */
+
+    switch(msgTypeList.indexOf(msgType))
     {
-        QDomElement node = root.firstChildElement(keyList.at(i));
-        valueList<< node.text();
-        //qDebug()<<keyList.at(i)<<":"<<node.text();
-        qDebug()<<keyList.at(i)<<":"<<valueList.at(i);
+        case 0:
+            qDebug()<<"msgType: text";
+            dealTextMessage(xml);
+            break;
+        case 1:
+            qDebug()<<"msgType: image";
+            dealImageMessage(xml);
+            break;
+        case 2:
+            qDebug()<<"msgType: event";
+            dealEventMessage(xml);
+            break;
+        case 3:
+            qDebug()<<"msgType: voice";
+            dealVoiceMessage(xml);
+            break;
+        default:
+            qDebug()<<"msgType: unknow";
+            break;
     }
-    */
-
-
-    qDebug()<<"----------------发送数据----------------------";
-
-    //sendMessage(body);
-    sendMessage(httpBody);
-
-    /*
-    QDomDocument doc("MyML");
-    QDomElement root = doc.createElement("MyML");
-    doc.appendChild(root);
-     
-    QDomElement tag = doc.createElement("Greeting");
-    root.appendChild(tag);
-     
-    QDomText t = doc.createTextNode("Hello World");
-    tag.appendChild(t);
-     
-    QString xml = doc.toString();
-    qDebug()<<xml;
-    */
 }
 
 void Server::readMessage()
