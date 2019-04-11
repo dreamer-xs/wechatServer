@@ -6,32 +6,29 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QByteArray>
-#include <QDomDocument>
+#include <unistd.h>
 
 class HttpServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit HttpServer(QObject *parent = nullptr);
-    void sendMessage(QString);
-    void dealMessage(QString);
-    void dealTextMessage(QDomDocument xml);
-    void dealTextMessage1(QDomDocument xml);
-    void dealEventMessage(QDomDocument xml);
-    void dealImageMessage(QDomDocument xml);
-    void dealVoiceMessage(QDomDocument xml);
+    HttpServer();
+    ~HttpServer();
 
     void StartListen(int nPort);
-private:
-    QTcpServer *m_piserver;
-    QTcpSocket *m_pisocket;
 
 signals:
+    void messageRecived(QString recvData);
 
 public slots:
+    void sendMessage(QString data);
     void newClientConnect();
     void readMessage();
     void disConnect();
+
+private:
+    QTcpServer *m_piserver;
+    QTcpSocket *m_pisocket;
 };
 
 #endif // SERVER_H

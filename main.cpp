@@ -3,6 +3,8 @@
 #include "mediaUpLoad.h"
 #include "accessToken.h"
 #include "tokenGet.h"
+#include "dealMessage.h"
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QTime>
@@ -14,7 +16,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 int main(int argc, char **argv)
 {
     // 安装消息处理程序
-    qInstallMessageHandler(myMessageOutput);
+    //qInstallMessageHandler(myMessageOutput);
     qInfo("--------main process begion-------");
 
     QCoreApplication a(argc, argv);
@@ -25,8 +27,14 @@ int main(int argc, char **argv)
     qWarning("This is a warning message.");
     qCritical("This is a critical message.");
 
-#if 0
+#if 1
+    //HttpServer *piServer = new HttpServer;
 
+    //token守护线程,一直确保token是有效的
+    AccessToken  token;
+    token.start();
+
+    DealMessage d;
 # else
 
     //token守护线程,一直确保token是有效的
@@ -39,13 +47,12 @@ int main(int argc, char **argv)
 
     //上传media至微信服务器并获取返回id, 会启动线程异步处理,使用信号通知,使用前记得绑定槽函数以便接收id
     QString m_type = "image";
-    QString m_mediaPath = "test.jpg";
+    QString m_mediaPath = "picture/test.jpg";
     QString m_token = t.tokenValue();
     MediaUpLoad m(m_token, m_type, m_mediaPath);
     m.start();
 #endif
 
-    //HttpServer *piServer = new HttpServer;
 
     return a.exec();//开始主线程事件循环
 

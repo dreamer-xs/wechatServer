@@ -19,9 +19,10 @@ public:
     MediaUpLoad();
     ~MediaUpLoad();
     void run();
+    QString mediaIdGet();
 
     QString uploadMedia(QString token, QString type, QString path);
-    void dealData(QString data);
+    QString dealData(QString data);
 
 signals:
     void mediaUpLoadFinished(QString type, QString mediaId);

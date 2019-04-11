@@ -11,12 +11,18 @@ MediaUpLoad::MediaUpLoad()
 {
     token = "20_h9nU3ca98TucfYwPLsHLS4qOe4uf5xsm9hAjnd6Hf7L1QuC7jvpJP2SjLDiNNg_gFvd9WpmWieiiCANWK6s4qhb2wvfqWSoUTlAsq0CfLGth2P7zOeY1SKq5CmsICKdAIAVPX";
     type = "image";
-    mediaPath = "test.jpg";
+    mediaPath = "picture/test.jpg";
 }
 
 MediaUpLoad::~MediaUpLoad()
 {
 
+}
+QString MediaUpLoad::mediaIdGet()
+{
+	QString data = uploadMedia(token, type, mediaPath);
+    //qDebug()<<"data: "<<data;
+	return dealData(data);
 }
 
 void MediaUpLoad::run()
@@ -35,7 +41,7 @@ void MediaUpLoad::run()
 }
 */
 
-void MediaUpLoad::dealData(QString data)
+QString MediaUpLoad::dealData(QString data)
 {
 #if 0
 	//简单的QTJson数据构造
@@ -92,6 +98,7 @@ void MediaUpLoad::dealData(QString data)
 
     connect(this, SIGNAL(mediaUpLoadFinished(QString,QString)), this, SLOT(mediaGet(QString, QString)));
     emit mediaUpLoadFinished(type, mediaId);
+    return mediaId;
 }
 
 void MediaUpLoad::mediaGet(QString type, QString mediaId)
