@@ -19,5 +19,5 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-HEADERS += bo.h httpServer.h log.h serialOperation.h streamparsexml.h
-SOURCES += bo.cpp httpServer.cpp log.cpp main.cpp serialOperation.cpp streamparsexml.cpp
+HEADERS += tokenGet.h mediaUpLoad.h accessToken.h httpClient.h httpServer.h log.h serialOperation.h
+SOURCES += tokenGet.cpp mediaUpLoad.cpp accessToken.cpp httpClient.cpp httpServer.cpp log.cpp main.cpp serialOperation.cpp

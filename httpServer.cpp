@@ -1,14 +1,14 @@
 #include "httpServer.h"
 #include "QCoreApplication"
 
-Server::Server(QObject *parent) : QObject(parent)
+HttpServer::HttpServer(QObject *parent) : QObject(parent)
 {
     m_piserver = new QTcpServer;
     m_pisocket = new QTcpSocket;
     StartListen(80);
 }
 
-void Server::StartListen(int nPort)
+void HttpServer::StartListen(int nPort)
 {
     if(m_piserver->listen(QHostAddress::Any,nPort))
         qDebug() << "listen ok";
@@ -17,7 +17,7 @@ void Server::StartListen(int nPort)
     connect(m_piserver,SIGNAL(newConnection()),this,SLOT(newClientConnect()));
 }
 
-void Server::newClientConnect()
+void HttpServer::newClientConnect()
 {
     qDebug() << "new client connect";
     m_pisocket = m_piserver->nextPendingConnection();
@@ -94,7 +94,7 @@ void Server::newClientConnect()
 //      <EventKey><![CDATA[]]></EventKey>
 //      </xml>
 
-void Server::sendMessage(QString httpBody)
+void HttpServer::sendMessage(QString httpBody)
 {
     qDebug()<<"----------------发送数据----------------------";
 
@@ -116,7 +116,7 @@ void Server::sendMessage(QString httpBody)
     m_pisocket->write(httpData);
 }
 
-void Server::dealTextMessage1(QDomDocument xml)
+void HttpServer::dealTextMessage1(QDomDocument xml)
 {
     //读取根元素<xml>
     QDomElement root = xml.documentElement(); 
@@ -174,7 +174,7 @@ void Server::dealTextMessage1(QDomDocument xml)
     sendMessage(xmlString);
 }
 
-void Server::dealTextMessage(QDomDocument xml)
+void HttpServer::dealTextMessage(QDomDocument xml)
 {
     //读取根元素<xml>
     QDomElement root = xml.documentElement(); 
@@ -239,7 +239,7 @@ void Server::dealTextMessage(QDomDocument xml)
     sendMessage(xmlString);
 }
 
-void Server::dealEventMessage(QDomDocument xml)
+void HttpServer::dealEventMessage(QDomDocument xml)
 {
     //读取根元素<xml>
     QDomElement root = xml.documentElement(); 
@@ -317,7 +317,7 @@ void Server::dealEventMessage(QDomDocument xml)
     
 }
 
-void Server::dealImageMessage(QDomDocument xml)
+void HttpServer::dealImageMessage(QDomDocument xml)
 {
     //读取根元素<xml>
     QDomElement root = xml.documentElement(); 
@@ -385,12 +385,12 @@ void Server::dealImageMessage(QDomDocument xml)
 
 }
 
-void Server::dealVoiceMessage(QDomDocument xml)
+void HttpServer::dealVoiceMessage(QDomDocument xml)
 {
     dealTextMessage1(xml);
 }
 
-void Server::dealMessage(QString recvData)
+void HttpServer::dealMessage(QString recvData)
 {
     qDebug()<<"接收消息:";
 
@@ -447,7 +447,7 @@ void Server::dealMessage(QString recvData)
     }
 }
 
-void Server::readMessage()
+void HttpServer::readMessage()
 {
     //qDebug() << "read client message";
     QByteArray buf;
@@ -460,7 +460,7 @@ void Server::readMessage()
 
 }
 
-void Server::disConnect()
+void HttpServer::disConnect()
 {
     qDebug() << "client disconnect";
 }

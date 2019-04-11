@@ -8,11 +8,11 @@
 #include <QByteArray>
 #include <QDomDocument>
 
-class Server : public QObject
+class HttpServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit Server(QObject *parent = nullptr);
+    explicit HttpServer(QObject *parent = nullptr);
     void sendMessage(QString);
     void dealMessage(QString);
     void dealTextMessage(QDomDocument xml);
