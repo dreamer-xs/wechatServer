@@ -55,7 +55,7 @@ void AccessToken::run()
             tokenGetTime = tokenSaveToCache(accessTokenValue);
         }
 
-        sleep(5);
+        sleep(10);
         //qDebug()<<"获取tokenAPI: "<<tokenValue();
     }
     qDebug()<<"-----------token线程结束-----------------";

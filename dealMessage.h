@@ -22,9 +22,11 @@ public:
 
     QString dealImageMessage(QDomDocument xml);
     QString createImage(QString fromUserName, QString toUserName, QString msgType, QString mediaId);
+    QString createVideo(QString fromUserName, QString toUserName, QString msgType, QString mediaId);
 
-    QString dealTextMessage1(QDomDocument xml);
+    QString dealVideoMessage(QDomDocument xml);
     QString dealEventMessage(QDomDocument xml);
+    QString dealTextMessage1(QDomDocument xml);
 
     void messageJoint(QString httpBody);
 
