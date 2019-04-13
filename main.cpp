@@ -1,3 +1,4 @@
+#include "tcpserver.h"
 #include "httpServer.h"
 #include "httpClient.h"
 #include "mediaUpLoad.h"
@@ -10,6 +11,7 @@
 #include <QTime>
 #include <QMutex>
 
+//全局日志文件路径
 #define LOGPATH   "./log.txt"
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
@@ -22,19 +24,18 @@ int main(int argc, char **argv)
     QCoreApplication a(argc, argv);
 
     // 打印信息级别
-    qDebug("This is a debug message.");
-    qInfo("This is a info message.");
-    qWarning("This is a warning message.");
-    qCritical("This is a critical message.");
+    //qDebug("This is a debug message.");
+    //qInfo("This is a info message.");
+    //qWarning("This is a warning message.");
+    //qCritical("This is a critical message.");
 
 #if 1
-    //HttpServer *piServer = new HttpServer;
-
     //token守护线程,一直确保token是有效的
     AccessToken  token;
     token.start();
 
-    DealMessage d;
+    TcpServer ser;
+    ser.listen(QHostAddress::Any,80);
 # else
 
     //token守护线程,一直确保token是有效的

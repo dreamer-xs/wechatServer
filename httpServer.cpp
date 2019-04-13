@@ -40,6 +40,7 @@ void HttpServer::sendMessage(QString data)
     httpData.append(data);
 
     m_pisocket->write(httpData);
+    m_pisocket->write(httpData);
 }
 
 
