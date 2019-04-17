@@ -1,110 +1,15 @@
-#include "dealMessage.h"
+#include "dealDevice.h"
 
-//接收消息主要有以下几类
-//1. 接收普通消息
-//2. 接收事件推送
-//3. xxx
-DealMessage::DealMessage()
+DealDevice::DealDevice()
+{
+}
+
+DealDevice::~DealDevice()
 {
 
 }
 
-DealMessage::~DealMessage()
-{
-
-}
-//      接收格式
-//      "POST /?signature=74ababdbd917619d6bddb1e1799d901c8e8a923f&timestamp=1554721572&nonce=1039027534&openid=oQAcB1CGfUF-KHu-1Hdep23DV9Ok HTTP/1.1
-//      User-Agent: Mozilla/4.0
-//      Accept: */*
-//      Host: 172.96.214.25
-//      Pragma: no-cache
-//      Content-Length: 283
-//      Content-Type: text/xml
-//      
-//      //text
-//      <xml><ToUserName><![CDATA[gh_5a42d45d5ea2]]></ToUserName> 公众号
-//      <FromUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></FromUserName> 粉丝号
-//      <CreateTime>1554721572</CreateTime> 粉丝发送该消息的具体时间
-//      <MsgType><![CDATA[text]]></MsgType> 用于标记该xml 是文本消息
-//      <Content><![CDATA[你好吗？]]></Content>
-//      <MsgId>22258263273163261</MsgId> 记录识别该消息的一个标记数值
-//      </xml>"
-//      
-//      //回复text
-//      <xml>
-//      <ToUserName><![CDATA[粉丝号]]></ToUserName>
-//      <FromUserName><![CDATA[公众号]]></FromUserName>
-//      <CreateTime>1460541339</CreateTime>
-//      <MsgType><![CDATA[text]]></MsgType>
-//      <Content><![CDATA[test]]></Content>
-//      </xml>
-//
-//      //接收media
-//      <xml>
-//      <ToUserName><![CDATA[公众号]]></ToUserName>
-//      <FromUserName><![CDATA[粉丝号]]></FromUserName>
-//      <CreateTime>1460536575</CreateTime>
-//      <MsgType><![CDATA[image]]></MsgType>
-//      <PicUrl><![CDATA[http://mmbiz.qpic.cn/xxxxxx /0]]></PicUrl>
-//      <MsgId>6272956824639273066</MsgId>
-//      <MediaId><![CDATA[gyci5a-xxxxx-OL]]></MediaId>
-//      </xml>
-//
-//      //回复media
-//      <xml>
-//      <ToUserName><![CDATA[粉丝号]]></ToUserName>
-//      <FromUserName><![CDATA[公众号]]></FromUserName>
-//      <CreateTime>1460536576</CreateTime>
-//      <MsgType><![CDATA[image]]></MsgType>
-//      <Image>
-//      <MediaId><![CDATA[gyci5oxxxxxxv3cOL]]></MediaId>
-//      </Image>
-//      </xml>
-//
-//      //接收video
-//      "<xml><ToUserName><![CDATA[gh_5a42d45d5ea2]]></ToUserName>
-//      <FromUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></FromUserName>
-//      <CreateTime>1554968722</CreateTime>
-//      <MsgType><![CDATA[video]]></MsgType>
-//      <MediaId><![CDATA[JzI0HtTIA0xU4B9WlEnXOucVLj4OxsYxwBkezw1fUimTMuiuiHjZHsbfGZmEgtEk]]></MediaId>
-//      <ThumbMediaId><![CDATA[dv1B00s2zuHFVytNUYypowKfU72fHDl0WHSfhm62CL1HtsglXIno21MTaav-ggS1]]></ThumbMediaId>
-//      <MsgId>22261800107117148</MsgId>
-//      </xml>"
-//
-//      //回复video
-//      <xml>
-//      <ToUserName><![CDATA[toUser]]></ToUserName>
-//      <FromUserName><![CDATA[fromUser]]></FromUserName>
-//      <CreateTime>12345678</CreateTime>
-//      <MsgType><![CDATA[video]]></MsgType>
-//      <Video>
-//      <MediaId><![CDATA[media_id]]></MediaId>
-//      <Title><![CDATA[title]]></Title>
-//      <Description><![CDATA[description]]></Description>
-//      </Video>
-//      </xml>
-//      
-//      //取消关注
-//      <xml><ToUserName><![CDATA[gh_5a42d45d5ea2]]></ToUserName>
-//      <FromUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></FromUserName>
-//      <CreateTime>1554804530</CreateTime>
-//      <MsgType><![CDATA[event]]></MsgType>
-//      <Event><![CDATA[unsubscribe]]></Event>
-//      <EventKey><![CDATA[]]></EventKey>
-//      </xml>
-//
-//      //关注
-//      <xml><ToUserName><![CDATA[gh_5a42d45d5ea2]]></ToUserName>
-//      <FromUserName><![CDATA[oQAcB1CGfUF-KHu-1Hdep23DV9Ok]]></FromUserName>
-//      <CreateTime>1554804610</CreateTime>
-//      <MsgType><![CDATA[event]]></MsgType>
-//      <Event><![CDATA[subscribe]]></Event>
-//      <EventKey><![CDATA[]]></EventKey>
-//      </xml>
-
-
-void DealMessage::messageJoint(QString httpBody)
+void DealDevice::messageJoint(QString httpBody)
 {
     qDebug()<<"-------------组合并发送数据--------------";
 
@@ -124,7 +29,7 @@ void DealMessage::messageJoint(QString httpBody)
     emit messageReady(httpPacket);
 }
 
-QString DealMessage::dealVideoMessage(QDomDocument xml)
+QString DealDevice::dealVideoMessage(QDomDocument xml)
 {
     //读取根元素<xml>
     QDomElement root = xml.documentElement(); 
@@ -151,7 +56,7 @@ QString DealMessage::dealVideoMessage(QDomDocument xml)
     return createVideo(fromUserName, toUserName, msgType, mediaId);
 }
 
-QString DealMessage::dealTextMessage1(QDomDocument xml)
+QString DealDevice::dealTextMessage1(QDomDocument xml)
 {
     //读取根元素<xml>
     QDomElement root = xml.documentElement(); 
@@ -211,7 +116,7 @@ QString DealMessage::dealTextMessage1(QDomDocument xml)
 }
 
 
-QString DealMessage::dealTextMessage(QDomDocument xml)
+QString DealDevice::dealTextMessage(QDomDocument xml)
 {
     //读取根元素<xml>
     QDomElement root = xml.documentElement(); 
@@ -262,7 +167,7 @@ QString DealMessage::dealTextMessage(QDomDocument xml)
         return createText(fromUserName, toUserName, msgType, content);
 }
 
-QString DealMessage::dealEventMessage(QDomDocument xml)
+QString DealDevice::dealEventMessage(QDomDocument xml)
 {
     //读取根元素<xml>
     QDomElement root = xml.documentElement(); 
@@ -339,7 +244,7 @@ QString DealMessage::dealEventMessage(QDomDocument xml)
     return xmlString;
 }
 
-QString DealMessage::createText(QString fromUserName, QString toUserName, QString msgType, QString content)
+QString DealDevice::createText(QString fromUserName, QString toUserName, QString msgType, QString content)
 {
 
     QDomDocument xmlRoot("");
@@ -383,7 +288,7 @@ QString DealMessage::createText(QString fromUserName, QString toUserName, QStrin
     return xmlString;
 
 }
-QString DealMessage::createVideo(QString fromUserName, QString toUserName, QString msgType, QString mediaId)
+QString DealDevice::createVideo(QString fromUserName, QString toUserName, QString msgType, QString mediaId)
 {
     QDomDocument xmlRoot("");
     QDomElement xmlNode= xmlRoot.createElement("xml");
@@ -443,7 +348,7 @@ QString DealMessage::createVideo(QString fromUserName, QString toUserName, QStri
 
     return xmlString;
 }
-QString DealMessage::createImage(QString fromUserName, QString toUserName, QString msgType, QString mediaId)
+QString DealDevice::createImage(QString fromUserName, QString toUserName, QString msgType, QString mediaId)
 {
     QDomDocument xmlRoot("");
     QDomElement xmlNode= xmlRoot.createElement("xml");
@@ -488,7 +393,7 @@ QString DealMessage::createImage(QString fromUserName, QString toUserName, QStri
     return xmlString;
 }
 
-QString DealMessage::dealImageMessage(QDomDocument xml)
+QString DealDevice::dealImageMessage(QDomDocument xml)
 {
     //读取根元素<xml>
     QDomElement root = xml.documentElement(); 
@@ -519,89 +424,13 @@ QString DealMessage::dealImageMessage(QDomDocument xml)
 }
 
 
-void DealMessage::messageRecv(QString recvData)
+void DealDevice::messageRecv(QString recvData)
 {
-    qDebug()<<"------------接收消息并开始分类-------------";
+    qDebug()<<"------------接收设备消息--------------";
 
-    //分割HTTP头和正文
-    QStringList dataList = recvData.split("\r\n\r\n");
-    QString head = dataList.at(0);
-    QString body = dataList.at(1);
+    qDebug()<<recvData;
 
+    emit messageReady(recvData);
 
-    //解析微信xml
-    QDomDocument xml;
-    xml.setContent(body);
-
-    //读取根元素<xml>
-    QDomElement root = xml.documentElement(); 
-
-    //获取msgtype类型
-    QDomElement node = root.firstChildElement("MsgType");
-    QString msgType = node.text();
-
-    //类型集合有:
-    //文本消息      文本为text
-    //图片消息      图片为image
-    //语音消息      语音为voice
-    //视频消息      视频为video
-    //小视频消息    小视频为shortvideo
-    //地理位置消息  地理位置为location
-    //链接消息      链接为link
-    //
-    //接收事件推送  消息类型event   -> 继续细分事件类型
-    QStringList msgTypeList = {"text","image","voice","video","shortvideo","location","link"};
-    /*
-     * text  = 0
-     * image = 1
-     * voice = 2
-     * video = 3
-     * shortvideo = 4
-     * location = 5
-     * link = 6
-     * event = 7
-     */
-
-    QString httpBody;
-    switch(msgTypeList.indexOf(msgType))
-    {
-        case 0:
-            qDebug()<<"msgType: text";
-            httpBody = dealTextMessage(xml);
-            break;
-        case 1:
-            qDebug()<<"msgType: image";
-            httpBody = dealImageMessage(xml);
-            break;
-        case 2:
-            qDebug()<<"msgType: voice";
-            httpBody = dealTextMessage1(xml);
-            break;
-        case 3:
-            qDebug()<<"msgType: video";
-            httpBody = dealTextMessage1(xml);
-            break;
-        case 4:
-            qDebug()<<"msgType: shortvideo";
-            httpBody = dealTextMessage1(xml);
-            break;
-        case 5:
-            qDebug()<<"msgType: location";
-            //httpBody = dealTextMessage1(xml);
-            httpBody = "success";
-            break;
-        case 6:
-            qDebug()<<"msgType: link";
-            httpBody = dealTextMessage1(xml);
-            break;
-        case 7:
-            qDebug()<<"msgType: event";
-            httpBody = dealTextMessage1(xml);
-            break;
-        default:
-            qDebug()<<"msgType: unknow";
-            break;
-    }
-
-    messageJoint(httpBody);
+    //messageJoint(httpBody);
 }

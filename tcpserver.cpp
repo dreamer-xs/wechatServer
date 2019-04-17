@@ -22,6 +22,8 @@ void TcpServer::setMaxPendingConnections(int numConnections)
 
 void TcpServer::incomingConnection(qintptr socketDescriptor) //多线程必须在此函数里捕获新连接
 {
+    qDebug()<<"socketDescriptor: " << socketDescriptor;
+
     if (tcpClient->size() > maxPendingConnections())//继承重写此函数后，QTcpServer默认的判断最大连接数失效，自己实现
     {
         QTcpSocket tcp;
@@ -31,15 +33,19 @@ void TcpServer::incomingConnection(qintptr socketDescriptor) //多线程必须�
     }
     auto th = ThreadHandle::getClass().getThread();
     auto tcpTemp = new TcpSocket(socketDescriptor);
-    QString ip =  tcpTemp->peerAddress().toString();
-    qint16 port = tcpTemp->peerPort();
+    QString peerIp =  tcpTemp->peerAddress().toString();
+    QString localIp =  tcpTemp->localAddress().toString();
+    qint16 peerPort = tcpTemp->peerPort();
+    qint16 localPort = tcpTemp->localPort();
+
+    qDebug()<<"localPort: "<<localPort;
 
     connect(tcpTemp,&TcpSocket::sockDisConnect,this,&TcpServer::sockDisConnectSlot);//NOTE:断开连接的处理，从列表移除，并释放断开的Tcpsocket，此槽必须实现，线程管理计数也是考的他
     connect(this,&TcpServer::sentDisConnect,tcpTemp,&TcpSocket::disConTcp);//断开信号
 
     tcpTemp->moveToThread(th);//把tcp类移动到新的线程，从线程管理类中获取
     tcpClient->insert(socketDescriptor,tcpTemp);//插入到连接信息中
-    emit connectClient(socketDescriptor,ip,port);
+    emit connectClient(socketDescriptor,peerIp,peerPort);
 }
 
 void TcpServer::sockDisConnectSlot(int handle,const QString & ip, quint16 prot,QThread * th)

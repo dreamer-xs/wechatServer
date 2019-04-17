@@ -1,10 +1,10 @@
 #include "tcpserver.h"
-#include "httpServer.h"
 #include "httpClient.h"
 #include "mediaUpLoad.h"
 #include "accessToken.h"
 #include "tokenGet.h"
 #include "dealMessage.h"
+#include "dbOperation.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -30,28 +30,20 @@ int main(int argc, char **argv)
     //qCritical("This is a critical message.");
 
 #if 1
+
     //token守护线程,一直确保token是有效的
     AccessToken  token;
     token.start();
 
-    TcpServer ser;
-    ser.listen(QHostAddress::Any,80);
+    TcpServer wechatServer;
+    wechatServer.listen(QHostAddress::Any,80);
+
+    TcpServer deviceServer;
+    deviceServer.listen(QHostAddress::Any,800);
 # else
 
-    //token守护线程,一直确保token是有效的
-    AccessToken  token;
-    token.start();
-    
-    //外部获取token接口
-    TokenGet t;
-    t.tokenValue();
+    HttpServer h;
 
-    //上传media至微信服务器并获取返回id, 会启动线程异步处理,使用信号通知,使用前记得绑定槽函数以便接收id
-    QString m_type = "image";
-    QString m_mediaPath = "picture/test.jpg";
-    QString m_token = t.tokenValue();
-    MediaUpLoad m(m_token, m_type, m_mediaPath);
-    m.start();
 #endif
 
 

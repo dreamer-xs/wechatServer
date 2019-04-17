@@ -8,6 +8,7 @@
 #include <QProcess>
 #include <QFile>
 #include "httpClient.h"
+#include "dbOperation.h"
 #include <unistd.h>
 
 
@@ -23,7 +24,9 @@ public:
 
     QString tokenValue();
     void tokenGetFromCache();
+    void tokenGetFromDB();
     int tokenSaveToCache(QString token);
+    int tokenSaveToDB(QString token);
     QString tokenGetFromServer();
 
 private slots:
@@ -36,6 +39,7 @@ private:
     QString accessTokenValue;
     QString tokenFilePath;
     int tokenGetTime;
+    DbOperation* db;
 };
 
 #endif // ACCESSTOKEN_H

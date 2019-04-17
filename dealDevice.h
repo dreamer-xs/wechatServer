@@ -1,5 +1,5 @@
-#ifndef __DEALMESSAGE_H_
-#define __DEALMESSAGE_H_
+#ifndef __DEALDEVICE_H_
+#define __DEALDEVICE_H_
 
 #include <QObject>
 #include <QDebug>
@@ -9,12 +9,12 @@
 #include "accessToken.h"
 #include "tokenGet.h"
 
-class DealMessage : public QObject
+class DealDevice : public QObject
 {
     Q_OBJECT
 public:
-    DealMessage();
-    ~DealMessage();
+    DealDevice();
+    ~DealDevice();
 
     QString dealTextMessage(QDomDocument xml);
     QString createText(QString fromUserName, QString toUserName, QString msgType, QString text);
@@ -39,4 +39,4 @@ private:
 
 };
 
-#endif // DEALMESSAGE_H
+#endif // DEALDEVICE_H

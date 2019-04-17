@@ -12,10 +12,10 @@ MAKEFILE      = Makefile
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_CORE_LIB
+DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_XML_LIB -DQT_SQL_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -std=gnu++11 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I. -I../../Qt5.10.0/5.10.0/gcc_64/include -I../../Qt5.10.0/5.10.0/gcc_64/include/QtGui -I../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I../../Qt5.10.0/5.10.0/gcc_64/include/QtXml -I../../Qt5.10.0/5.10.0/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I../../Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++
+INCPATH       = -I. -I. -I../../Qt5.10.0/5.10.0/gcc_64/include -I../../Qt5.10.0/5.10.0/gcc_64/include/QtGui -I../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I../../Qt5.10.0/5.10.0/gcc_64/include/QtXml -I../../Qt5.10.0/5.10.0/gcc_64/include/QtSql -I../../Qt5.10.0/5.10.0/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I../../Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++
 QMAKE         = /opt/Qt5.10.0/5.10.0/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -38,7 +38,7 @@ DISTNAME      = wechatServer1.0.0
 DISTDIR = /opt/code/wechatServer/.tmp/wechatServer1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1 -Wl,-rpath,/opt/Qt5.10.0/5.10.0/gcc_64/lib
-LIBS          = $(SUBLIBS) -lev -L/opt/Qt5.10.0/5.10.0/gcc_64/lib -lQt5Gui -lQt5Network -lQt5Xml -lQt5Core -lGL -lpthread 
+LIBS          = $(SUBLIBS) -lev -L/opt/Qt5.10.0/5.10.0/gcc_64/lib -lQt5Gui -lQt5Network -lQt5Xml -lQt5Sql -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -53,7 +53,6 @@ OBJECTS_DIR   = ./
 SOURCES       = accessToken.cpp \
 		dealMessage.cpp \
 		httpClient.cpp \
-		httpServer.cpp \
 		log.cpp \
 		main.cpp \
 		mediaUpLoad.cpp \
@@ -62,22 +61,23 @@ SOURCES       = accessToken.cpp \
 		tcpsocket.cpp \
 		threadhandle.cpp \
 		tokenGet.cpp \
+		dbOperation.cpp \
+		dealDevice.cpp \
 		eventdispatcher_libev/eventdispatcher_libev.cpp \
 		eventdispatcher_libev/eventdispatcher_libev_p.cpp \
 		eventdispatcher_libev/timers_p.cpp \
 		eventdispatcher_libev/socknot_p.cpp moc_accessToken.cpp \
 		moc_dealMessage.cpp \
 		moc_httpClient.cpp \
-		moc_httpServer.cpp \
 		moc_mediaUpLoad.cpp \
 		moc_tcpserver.cpp \
 		moc_tcpsocket.cpp \
 		moc_tokenGet.cpp \
+		moc_dealDevice.cpp \
 		moc_eventdispatcher_libev.cpp
 OBJECTS       = accessToken.o \
 		dealMessage.o \
 		httpClient.o \
-		httpServer.o \
 		log.o \
 		main.o \
 		mediaUpLoad.o \
@@ -86,6 +86,8 @@ OBJECTS       = accessToken.o \
 		tcpsocket.o \
 		threadhandle.o \
 		tokenGet.o \
+		dbOperation.o \
+		dealDevice.o \
 		eventdispatcher_libev.o \
 		eventdispatcher_libev_p.o \
 		timers_p.o \
@@ -93,11 +95,11 @@ OBJECTS       = accessToken.o \
 		moc_accessToken.o \
 		moc_dealMessage.o \
 		moc_httpClient.o \
-		moc_httpServer.o \
 		moc_mediaUpLoad.o \
 		moc_tcpserver.o \
 		moc_tcpsocket.o \
 		moc_tokenGet.o \
+		moc_dealDevice.o \
 		moc_eventdispatcher_libev.o
 DIST          = ../../Qt5.10.0/5.10.0/gcc_64/mkspecs/features/spec_pre.prf \
 		../../Qt5.10.0/5.10.0/gcc_64/mkspecs/common/unix.conf \
@@ -284,7 +286,6 @@ DIST          = ../../Qt5.10.0/5.10.0/gcc_64/mkspecs/features/spec_pre.prf \
 		wechatServer.pro accessToken.h \
 		dealMessage.h \
 		httpClient.h \
-		httpServer.h \
 		log.h \
 		mediaUpLoad.h \
 		serialOperation.h \
@@ -292,11 +293,12 @@ DIST          = ../../Qt5.10.0/5.10.0/gcc_64/mkspecs/features/spec_pre.prf \
 		tcpsocket.h \
 		threadhandle.h \
 		tokenGet.h \
+		dbOperation.h \
+		dealDevice.h \
 		eventdispatcher_libev/eventdispatcher_libev.h \
 		eventdispatcher_libev/eventdispatcher_libev_p.h accessToken.cpp \
 		dealMessage.cpp \
 		httpClient.cpp \
-		httpServer.cpp \
 		log.cpp \
 		main.cpp \
 		mediaUpLoad.cpp \
@@ -305,6 +307,8 @@ DIST          = ../../Qt5.10.0/5.10.0/gcc_64/mkspecs/features/spec_pre.prf \
 		tcpsocket.cpp \
 		threadhandle.cpp \
 		tokenGet.cpp \
+		dbOperation.cpp \
+		dealDevice.cpp \
 		eventdispatcher_libev/eventdispatcher_libev.cpp \
 		eventdispatcher_libev/eventdispatcher_libev_p.cpp \
 		eventdispatcher_libev/timers_p.cpp \
@@ -506,6 +510,7 @@ Makefile: wechatServer.pro ../../Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++/qmake.
 		../../Qt5.10.0/5.10.0/gcc_64/lib/libQt5Gui.prl \
 		../../Qt5.10.0/5.10.0/gcc_64/lib/libQt5Network.prl \
 		../../Qt5.10.0/5.10.0/gcc_64/lib/libQt5Xml.prl \
+		../../Qt5.10.0/5.10.0/gcc_64/lib/libQt5Sql.prl \
 		../../Qt5.10.0/5.10.0/gcc_64/lib/libQt5Core.prl
 	$(QMAKE) -o Makefile wechatServer.pro
 ../../Qt5.10.0/5.10.0/gcc_64/mkspecs/features/spec_pre.prf:
@@ -694,6 +699,7 @@ wechatServer.pro:
 ../../Qt5.10.0/5.10.0/gcc_64/lib/libQt5Gui.prl:
 ../../Qt5.10.0/5.10.0/gcc_64/lib/libQt5Network.prl:
 ../../Qt5.10.0/5.10.0/gcc_64/lib/libQt5Xml.prl:
+../../Qt5.10.0/5.10.0/gcc_64/lib/libQt5Sql.prl:
 ../../Qt5.10.0/5.10.0/gcc_64/lib/libQt5Core.prl:
 qmake: FORCE
 	@$(QMAKE) -o Makefile wechatServer.pro
@@ -710,8 +716,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../../Qt5.10.0/5.10.0/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents accessToken.h dealMessage.h httpClient.h httpServer.h log.h mediaUpLoad.h serialOperation.h tcpserver.h tcpsocket.h threadhandle.h tokenGet.h eventdispatcher_libev/eventdispatcher_libev.h eventdispatcher_libev/eventdispatcher_libev_p.h $(DISTDIR)/
-	$(COPY_FILE) --parents accessToken.cpp dealMessage.cpp httpClient.cpp httpServer.cpp log.cpp main.cpp mediaUpLoad.cpp serialOperation.cpp tcpserver.cpp tcpsocket.cpp threadhandle.cpp tokenGet.cpp eventdispatcher_libev/eventdispatcher_libev.cpp eventdispatcher_libev/eventdispatcher_libev_p.cpp eventdispatcher_libev/timers_p.cpp eventdispatcher_libev/socknot_p.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents accessToken.h dealMessage.h httpClient.h log.h mediaUpLoad.h serialOperation.h tcpserver.h tcpsocket.h threadhandle.h tokenGet.h dbOperation.h dealDevice.h eventdispatcher_libev/eventdispatcher_libev.h eventdispatcher_libev/eventdispatcher_libev_p.h $(DISTDIR)/
+	$(COPY_FILE) --parents accessToken.cpp dealMessage.cpp httpClient.cpp log.cpp main.cpp mediaUpLoad.cpp serialOperation.cpp tcpserver.cpp tcpsocket.cpp threadhandle.cpp tokenGet.cpp dbOperation.cpp dealDevice.cpp eventdispatcher_libev/eventdispatcher_libev.cpp eventdispatcher_libev/eventdispatcher_libev_p.cpp eventdispatcher_libev/timers_p.cpp eventdispatcher_libev/socknot_p.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -743,9 +749,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: ../../Qt5.10.0/5.10.0/gcc_64/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -std=gnu++11 -Wall -W -dM -E -o moc_predefs.h ../../Qt5.10.0/5.10.0/gcc_64/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_accessToken.cpp moc_dealMessage.cpp moc_httpClient.cpp moc_httpServer.cpp moc_mediaUpLoad.cpp moc_tcpserver.cpp moc_tcpsocket.cpp moc_tokenGet.cpp moc_eventdispatcher_libev.cpp
+compiler_moc_header_make_all: moc_accessToken.cpp moc_dealMessage.cpp moc_httpClient.cpp moc_mediaUpLoad.cpp moc_tcpserver.cpp moc_tcpsocket.cpp moc_tokenGet.cpp moc_dealDevice.cpp moc_eventdispatcher_libev.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_accessToken.cpp moc_dealMessage.cpp moc_httpClient.cpp moc_httpServer.cpp moc_mediaUpLoad.cpp moc_tcpserver.cpp moc_tcpsocket.cpp moc_tokenGet.cpp moc_eventdispatcher_libev.cpp
+	-$(DEL_FILE) moc_accessToken.cpp moc_dealMessage.cpp moc_httpClient.cpp moc_mediaUpLoad.cpp moc_tcpserver.cpp moc_tcpsocket.cpp moc_tokenGet.cpp moc_dealDevice.cpp moc_eventdispatcher_libev.cpp
 moc_accessToken.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDebug \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qdebug.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qalgorithms.h \
@@ -856,10 +862,19 @@ moc_accessToken.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDebug \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkRequest \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QEventLoop \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h \
+		dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		log.h \
 		accessToken.h \
 		moc_predefs.h \
 		../../Qt5.10.0/5.10.0/gcc_64/bin/moc
-	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include accessToken.h -o moc_accessToken.cpp
+	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtSql -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include accessToken.h -o moc_accessToken.cpp
 
 moc_dealMessage.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject.h \
@@ -931,15 +946,6 @@ moc_dealMessage.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qdom.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxmlglobal.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxml-config.h \
-		httpServer.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpServer \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpserver.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qabstractsocket.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qhostaddress.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpSocket \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpsocket.h \
 		mediaUpLoad.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QThread \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qthread.h \
@@ -957,6 +963,8 @@ moc_dealMessage.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
 		httpClient.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkAccessManager \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qnetworkaccessmanager.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qnetworkrequest.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QSharedDataPointer \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QString \
@@ -968,6 +976,8 @@ moc_dealMessage.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QSslConfiguration \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslconfiguration.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslsocket.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpsocket.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qabstractsocket.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslerror.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslcertificate.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcryptographichash.h \
@@ -983,12 +993,21 @@ moc_dealMessage.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkRequest \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QEventLoop \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h \
+		dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		log.h \
 		tokenGet.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDateTime \
 		dealMessage.h \
 		moc_predefs.h \
 		../../Qt5.10.0/5.10.0/gcc_64/bin/moc
-	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include dealMessage.h -o moc_dealMessage.cpp
+	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtSql -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include dealMessage.h -o moc_dealMessage.cpp
 
 moc_httpClient.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject.h \
@@ -1090,86 +1109,7 @@ moc_httpClient.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
 		httpClient.h \
 		moc_predefs.h \
 		../../Qt5.10.0/5.10.0/gcc_64/bin/moc
-	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include httpClient.h -o moc_httpClient.cpp
-
-moc_httpServer.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobjectdefs.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qnamespace.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qglobal.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qconfig-bootstrapped.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qconfig.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtcore-config.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsystemdetection.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qprocessordetection.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcompilerdetection.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtypeinfo.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsysinfo.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlogging.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qflags.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbasicatomic.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_bootstrap.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qgenericatomic.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_cxx11.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_msvc.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qglobalstatic.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmutex.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qnumeric.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qversiontagging.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobjectdefs_impl.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstring.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qchar.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbytearray.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qrefcount.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qarraydata.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringliteral.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringalgorithms.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringview.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringbuilder.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlist.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qalgorithms.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qiterator.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qhashfunctions.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qpair.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbytearraylist.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringlist.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qregexp.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringmatcher.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcoreevent.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qscopedpointer.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmetatype.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvarlengtharray.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcontainerfwd.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject_impl.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDebug \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qdebug.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qhash.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmap.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtextstream.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qiodevice.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlocale.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvariant.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qshareddata.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvector.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qpoint.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qset.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcontiguouscache.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsharedpointer.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsharedpointer_impl.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpServer \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpserver.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qabstractsocket.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qhostaddress.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpSocket \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpsocket.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QByteArray \
-		httpServer.h \
-		moc_predefs.h \
-		../../Qt5.10.0/5.10.0/gcc_64/bin/moc
-	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include httpServer.h -o moc_httpServer.cpp
+	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtSql -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include httpClient.h -o moc_httpClient.cpp
 
 moc_mediaUpLoad.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDebug \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qdebug.h \
@@ -1250,7 +1190,7 @@ moc_mediaUpLoad.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDebug \
 		mediaUpLoad.h \
 		moc_predefs.h \
 		../../Qt5.10.0/5.10.0/gcc_64/bin/moc
-	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include mediaUpLoad.h -o moc_mediaUpLoad.cpp
+	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtSql -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include mediaUpLoad.h -o moc_mediaUpLoad.cpp
 
 moc_tcpserver.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpServer \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpserver.h \
@@ -1344,7 +1284,6 @@ moc_tcpserver.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpServer \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qdom.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxmlglobal.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxml-config.h \
-		httpServer.h \
 		mediaUpLoad.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QThread \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qthread.h \
@@ -1387,12 +1326,22 @@ moc_tcpserver.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpServer \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkRequest \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QEventLoop \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h \
+		dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		log.h \
 		tokenGet.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDateTime \
+		dealDevice.h \
 		tcpserver.h \
 		moc_predefs.h \
 		../../Qt5.10.0/5.10.0/gcc_64/bin/moc
-	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include tcpserver.h -o moc_tcpserver.cpp
+	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtSql -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include tcpserver.h -o moc_tcpserver.cpp
 
 moc_tcpsocket.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpSocket \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpsocket.h \
@@ -1481,10 +1430,6 @@ moc_tcpsocket.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpSocket \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qdom.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxmlglobal.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxml-config.h \
-		httpServer.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpServer \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpserver.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qhostaddress.h \
 		mediaUpLoad.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QThread \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qthread.h \
@@ -1527,12 +1472,22 @@ moc_tcpsocket.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpSocket \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkRequest \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QEventLoop \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h \
+		dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		log.h \
 		tokenGet.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDateTime \
+		dealDevice.h \
 		tcpsocket.h \
 		moc_predefs.h \
 		../../Qt5.10.0/5.10.0/gcc_64/bin/moc
-	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include tcpsocket.h -o moc_tcpsocket.cpp
+	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtSql -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include tcpsocket.h -o moc_tcpsocket.cpp
 
 moc_tokenGet.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDebug \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qdebug.h \
@@ -1606,7 +1561,140 @@ moc_tokenGet.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDebug \
 		tokenGet.h \
 		moc_predefs.h \
 		../../Qt5.10.0/5.10.0/gcc_64/bin/moc
-	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include tokenGet.h -o moc_tokenGet.cpp
+	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtSql -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include tokenGet.h -o moc_tokenGet.cpp
+
+moc_dealDevice.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobjectdefs.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qnamespace.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qconfig-bootstrapped.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qconfig.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtcore-config.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsystemdetection.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qprocessordetection.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcompilerdetection.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtypeinfo.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsysinfo.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlogging.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qflags.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbasicatomic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qgenericatomic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_cxx11.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_msvc.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qglobalstatic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmutex.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qnumeric.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qversiontagging.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobjectdefs_impl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstring.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qchar.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbytearray.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qrefcount.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qarraydata.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringliteral.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringalgorithms.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringview.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringbuilder.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlist.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qalgorithms.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qiterator.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qhashfunctions.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qpair.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbytearraylist.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringlist.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qregexp.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringmatcher.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcoreevent.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qscopedpointer.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmetatype.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvarlengtharray.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcontainerfwd.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject_impl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDebug \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qdebug.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qhash.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmap.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtextstream.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qiodevice.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlocale.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvariant.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qshareddata.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvector.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qpoint.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qset.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcontiguouscache.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsharedpointer.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsharedpointer_impl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QByteArray \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/QDomDocument \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qdom.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxmlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxml-config.h \
+		mediaUpLoad.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QThread \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qthread.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QJsonDocument \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qjsondocument.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qjsonvalue.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QJsonObject \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qjsonobject.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QProcess \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qprocess.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QFile \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qfile.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qfiledevice.h \
+		accessToken.h \
+		httpClient.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkAccessManager \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qnetworkaccessmanager.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qnetworkrequest.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QSharedDataPointer \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QString \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QUrl \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qurl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qurlquery.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QVariant \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QVector \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QSslConfiguration \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslconfiguration.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslsocket.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpsocket.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qabstractsocket.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslcertificate.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcryptographichash.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qdatetime.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qssl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QFlags \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QSslPreSharedKeyAuthenticator \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslpresharedkeyauthenticator.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QMetaType \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkReply \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qnetworkreply.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QIODevice \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkRequest \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QEventLoop \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h \
+		dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		log.h \
+		tokenGet.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDateTime \
+		dealDevice.h \
+		moc_predefs.h \
+		../../Qt5.10.0/5.10.0/gcc_64/bin/moc
+	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtSql -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include dealDevice.h -o moc_dealDevice.cpp
 
 moc_eventdispatcher_libev.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QAbstractEventDispatcher \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qabstracteventdispatcher.h \
@@ -1663,7 +1751,7 @@ moc_eventdispatcher_libev.cpp: ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QAbst
 		eventdispatcher_libev/eventdispatcher_libev.h \
 		moc_predefs.h \
 		../../Qt5.10.0/5.10.0/gcc_64/bin/moc
-	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include eventdispatcher_libev/eventdispatcher_libev.h -o moc_eventdispatcher_libev.cpp
+	/opt/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/opt/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/opt/code/wechatServer -I/opt/code/wechatServer -I/opt/Qt5.10.0/5.10.0/gcc_64/include -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtNetwork -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtXml -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtSql -I/opt/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include eventdispatcher_libev/eventdispatcher_libev.h -o moc_eventdispatcher_libev.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -1789,7 +1877,16 @@ accessToken.o: accessToken.cpp accessToken.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QIODevice \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkRequest \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QEventLoop \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h \
+		dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		log.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o accessToken.o accessToken.cpp
 
 dealMessage.o: dealMessage.cpp dealMessage.h \
@@ -1863,15 +1960,6 @@ dealMessage.o: dealMessage.cpp dealMessage.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qdom.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxmlglobal.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxml-config.h \
-		httpServer.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpServer \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpserver.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qabstractsocket.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qhostaddress.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpSocket \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpsocket.h \
 		mediaUpLoad.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QThread \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qthread.h \
@@ -1889,6 +1977,8 @@ dealMessage.o: dealMessage.cpp dealMessage.h \
 		httpClient.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkAccessManager \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qnetworkaccessmanager.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qnetworkrequest.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QSharedDataPointer \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QString \
@@ -1900,6 +1990,8 @@ dealMessage.o: dealMessage.cpp dealMessage.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QSslConfiguration \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslconfiguration.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslsocket.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpsocket.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qabstractsocket.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslerror.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslcertificate.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcryptographichash.h \
@@ -1915,6 +2007,15 @@ dealMessage.o: dealMessage.cpp dealMessage.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkRequest \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QEventLoop \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h \
+		dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		log.h \
 		tokenGet.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDateTime
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dealMessage.o dealMessage.cpp
@@ -2019,83 +2120,6 @@ httpClient.o: httpClient.cpp httpClient.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o httpClient.o httpClient.cpp
 
-httpServer.o: httpServer.cpp httpServer.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobjectdefs.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qnamespace.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qglobal.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qconfig-bootstrapped.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qconfig.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtcore-config.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsystemdetection.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qprocessordetection.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcompilerdetection.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtypeinfo.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsysinfo.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlogging.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qflags.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbasicatomic.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_bootstrap.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qgenericatomic.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_cxx11.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_msvc.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qglobalstatic.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmutex.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qnumeric.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qversiontagging.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobjectdefs_impl.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstring.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qchar.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbytearray.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qrefcount.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qarraydata.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringliteral.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringalgorithms.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringview.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringbuilder.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlist.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qalgorithms.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qiterator.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qhashfunctions.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qpair.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbytearraylist.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringlist.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qregexp.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringmatcher.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcoreevent.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qscopedpointer.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmetatype.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvarlengtharray.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcontainerfwd.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject_impl.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDebug \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qdebug.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qhash.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmap.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtextstream.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qiodevice.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlocale.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvariant.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qshareddata.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvector.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qpoint.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qset.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcontiguouscache.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsharedpointer.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsharedpointer_impl.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpServer \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpserver.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qabstractsocket.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qhostaddress.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpSocket \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpsocket.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QByteArray
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o httpServer.o httpServer.cpp
-
 log.o: log.cpp log.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o log.o log.cpp
 
@@ -2192,7 +2216,6 @@ main.o: main.cpp tcpserver.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qdom.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxmlglobal.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxml-config.h \
-		httpServer.h \
 		mediaUpLoad.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QThread \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qthread.h \
@@ -2235,8 +2258,18 @@ main.o: main.cpp tcpserver.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkRequest \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QEventLoop \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h \
+		dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		log.h \
 		tokenGet.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDateTime \
+		dealDevice.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QCoreApplication \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcoreapplication.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QMutex
@@ -2418,7 +2451,6 @@ tcpserver.o: tcpserver.cpp tcpserver.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qdom.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxmlglobal.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxml-config.h \
-		httpServer.h \
 		mediaUpLoad.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QThread \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qthread.h \
@@ -2461,8 +2493,18 @@ tcpserver.o: tcpserver.cpp tcpserver.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkRequest \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QEventLoop \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h \
+		dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		log.h \
 		tokenGet.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDateTime \
+		dealDevice.h \
 		threadhandle.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtGui/QList \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtGui/qevent.h \
@@ -2568,10 +2610,6 @@ tcpsocket.o: tcpsocket.cpp tcpsocket.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qdom.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxmlglobal.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxml-config.h \
-		httpServer.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QTcpServer \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpserver.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qhostaddress.h \
 		mediaUpLoad.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QThread \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qthread.h \
@@ -2614,8 +2652,18 @@ tcpsocket.o: tcpsocket.cpp tcpsocket.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkRequest \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QEventLoop \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h \
+		dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		log.h \
 		tokenGet.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDateTime \
+		dealDevice.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtConcurrent/QtConcurrent \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtConcurrent/QtConcurrentDepends \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QtCore \
@@ -2738,7 +2786,8 @@ tcpsocket.o: tcpsocket.cpp tcpsocket.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtConcurrent/qtconcurrentrunbase.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtConcurrent/qtconcurrentstoredfunctioncall.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtConcurrent/qtconcurrentversion.h \
-		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QHostAddress
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QHostAddress \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qhostaddress.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o tcpsocket.o tcpsocket.cpp
 
 threadhandle.o: threadhandle.cpp threadhandle.h \
@@ -2905,6 +2954,213 @@ tokenGet.o: tokenGet.cpp tokenGet.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qfile.h \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qfiledevice.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o tokenGet.o tokenGet.cpp
+
+dbOperation.o: dbOperation.cpp dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QString \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstring.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qchar.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qconfig-bootstrapped.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qconfig.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtcore-config.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsystemdetection.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qprocessordetection.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcompilerdetection.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtypeinfo.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsysinfo.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlogging.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qflags.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbasicatomic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qgenericatomic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_cxx11.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_msvc.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qglobalstatic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmutex.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qnumeric.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qversiontagging.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbytearray.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qrefcount.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qnamespace.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qarraydata.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringliteral.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringalgorithms.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringview.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringbuilder.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDebug \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qdebug.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qalgorithms.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qhash.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qiterator.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlist.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qhashfunctions.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qpair.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbytearraylist.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringlist.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qregexp.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringmatcher.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmap.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtextstream.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qiodevice.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobjectdefs.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobjectdefs_impl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcoreevent.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qscopedpointer.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmetatype.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvarlengtharray.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcontainerfwd.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject_impl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlocale.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvariant.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qshareddata.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvector.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qpoint.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qset.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcontiguouscache.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsharedpointer.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsharedpointer_impl.h \
+		log.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dbOperation.o dbOperation.cpp
+
+dealDevice.o: dealDevice.cpp dealDevice.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobjectdefs.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qnamespace.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qconfig-bootstrapped.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qconfig.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtcore-config.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsystemdetection.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qprocessordetection.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcompilerdetection.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtypeinfo.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsysinfo.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlogging.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qflags.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbasicatomic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qgenericatomic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_cxx11.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qatomic_msvc.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qglobalstatic.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmutex.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qnumeric.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qversiontagging.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobjectdefs_impl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstring.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qchar.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbytearray.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qrefcount.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qarraydata.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringliteral.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringalgorithms.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringview.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringbuilder.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlist.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qalgorithms.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qiterator.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qhashfunctions.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qpair.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qbytearraylist.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringlist.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qregexp.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qstringmatcher.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcoreevent.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qscopedpointer.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmetatype.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvarlengtharray.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcontainerfwd.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qobject_impl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDebug \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qdebug.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qhash.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qmap.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qtextstream.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qiodevice.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qlocale.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvariant.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qshareddata.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qvector.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qpoint.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qset.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcontiguouscache.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsharedpointer.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qsharedpointer_impl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QByteArray \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/QDomDocument \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qdom.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxmlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtXml/qtxml-config.h \
+		mediaUpLoad.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QThread \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qthread.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QJsonDocument \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qjsondocument.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qjsonvalue.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QJsonObject \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qjsonobject.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QProcess \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qprocess.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QFile \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qfile.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qfiledevice.h \
+		accessToken.h \
+		httpClient.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkAccessManager \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qnetworkaccessmanager.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetworkglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtnetwork-config.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qnetworkrequest.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QSharedDataPointer \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QString \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QUrl \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qurl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qurlquery.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QVariant \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QVector \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QSslConfiguration \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslconfiguration.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslsocket.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qtcpsocket.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qabstractsocket.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslcertificate.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qcryptographichash.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qdatetime.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qssl.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QFlags \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QSslPreSharedKeyAuthenticator \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qsslpresharedkeyauthenticator.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QMetaType \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkReply \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/qnetworkreply.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QIODevice \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtNetwork/QNetworkRequest \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QEventLoop \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qeventloop.h \
+		dbOperation.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlDatabase \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqldatabase.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qtsqlglobal.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlError \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlerror.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/QSqlQuery \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtSql/qsqlquery.h \
+		log.h \
+		tokenGet.h \
+		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QDateTime
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o dealDevice.o dealDevice.cpp
 
 eventdispatcher_libev.o: eventdispatcher_libev/eventdispatcher_libev.cpp ../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/QPair \
 		../../Qt5.10.0/5.10.0/gcc_64/include/QtCore/qpair.h \
@@ -3201,9 +3457,6 @@ moc_dealMessage.o: moc_dealMessage.cpp
 moc_httpClient.o: moc_httpClient.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_httpClient.o moc_httpClient.cpp
 
-moc_httpServer.o: moc_httpServer.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_httpServer.o moc_httpServer.cpp
-
 moc_mediaUpLoad.o: moc_mediaUpLoad.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mediaUpLoad.o moc_mediaUpLoad.cpp
 
@@ -3215,6 +3468,9 @@ moc_tcpsocket.o: moc_tcpsocket.cpp
 
 moc_tokenGet.o: moc_tokenGet.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_tokenGet.o moc_tokenGet.cpp
+
+moc_dealDevice.o: moc_dealDevice.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_dealDevice.o moc_dealDevice.cpp
 
 moc_eventdispatcher_libev.o: moc_eventdispatcher_libev.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_eventdispatcher_libev.o moc_eventdispatcher_libev.cpp

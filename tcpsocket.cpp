@@ -10,13 +10,13 @@ TcpSocket::TcpSocket(qintptr socketDescriptor, QObject *parent) : //构造函数
     connect(this,&TcpSocket::readyRead,this,&TcpSocket::readData);
     dis = connect(this,&TcpSocket::disconnected,
         [&](){
-            qDebug() << "disconnect" ;
+            qDebug() << "disconnect"<<" port: "<<this->localPort()<< "socketDescriptor: "<< this->socketDescriptor();
             emit sockDisConnect(socketID,this->peerAddress().toString(),this->peerPort(),QThread::currentThread());//发送断开连接的用户信息
             this->deleteLater();
         });
     connect(&watcher,&QFutureWatcher<QByteArray>::finished,this,&TcpSocket::startNext);
     connect(&watcher,&QFutureWatcher<QByteArray>::canceled,this,&TcpSocket::startNext);
-    qDebug() << "new connect" ;
+    qDebug() << "new connect" <<" port: "<<this->localPort()<< "socketDescriptor: "<< this->socketDescriptor();
 }
 
 TcpSocket::~TcpSocket()
@@ -61,9 +61,8 @@ void TcpSocket::readData()
     while(tm.elapsed() < 100)
     {}
 
-//    datas.append(this->readAll());
-    auto data  = handleData(this->readAll(),this->peerAddress().toString(),this->peerPort());
-    qDebug() << data;
+    //auto data  = handleData(this->readAll(),this->peerAddress().toString(),this->peerPort());
+    auto data  = handleData(this->readAll(),this->peerAddress().toString(),this->localPort());
     //this->write(data);
 //    if (!watcher.isRunning())//放到异步线程中处理。
 //    {
@@ -71,11 +70,9 @@ void TcpSocket::readData()
 //    }
 }
 
+
 QByteArray TcpSocket::handleData(QByteArray data, const QString &ip, qint16 port)
 {
-    //QTime time;
-    //time.start();
-
     QElapsedTimer tm;
     tm.start();
     while(tm.elapsed() < 100)
@@ -84,14 +81,33 @@ QByteArray TcpSocket::handleData(QByteArray data, const QString &ip, qint16 port
     qDebug()<<"---------------原始接收数据-----------------";
     QString recvData;
     recvData.append(data);
+    //qDebug()<<"port: "<<port << "socketDescriptor: "<< this.socketDescriptor();
     qDebug()<<recvData;
     qDebug()<<"--------------------------------------------";
-	// 对数据的处理
-    DealMessage d;
-	connect(&d, SIGNAL(messageReady(QString)), this, SLOT(writeData(QString)));
-    d.messageRecv(recvData);
 
-    //data = ip.toUtf8() + " " + QByteArray::number(port) + " " + data + " " + QTime::currentTime().toString().toUtf8();
+    //微信服务器请求
+    //微信请求后将用户ID与设备ID关联并存入数据库
+    if(port == 80)
+    {
+        qDebug()<<"wechat";
+        // 对数据的处理
+        DealMessage d;
+        connect(&d, SIGNAL(messageReady(QString)), this, SLOT(writeData(QString)));
+        d.messageRecv(recvData);
+    }
+    //设备端请求
+    //将socket存入数据，保持长连接
+    //设备请求后将用户ID与设备ID关联并存入数据库
+    else if(port == 800)
+    {
+        qDebug()<<"device";
+        // 对数据的处理
+        DealDevice d;
+        connect(&d, SIGNAL(messageReady(QString)), this, SLOT(writeData(QString)));
+        d.messageRecv(recvData);
+    }
+
+
     return data;
 }
 

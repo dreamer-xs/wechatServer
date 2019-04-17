@@ -2,17 +2,40 @@
 
 AccessToken::AccessToken()
 {
-    //tokenClient = new HttpClient; 
-    tokenFilePath = "./token.txt";
+    //tokenFilePath = "./token.txt";
     tokenValid = false;
     accessTokenValue.clear();
     tokenGetTime = 0;
+
+    QString dbName = "wechat";
+    QString tableName = "accessToken";
+    db = new DbOperation(dbName);
+
+    QString sqlCmd;
+
+    //判断表是否存在
+    sqlCmd.clear();
+    //sqlCmd.append(QString("SELECT COUNT(*) FROM sqlite_master where type='table' and name='%1'").arg(tableName));
+    sqlCmd.append("SELECT COUNT(*) FROM sqlite_master where type='table' and name='accessToken'");
+    QList<QString> dataList;
+    dataList = db->sqlQuery(sqlCmd);
+
+    //如果该表不存在则创建表(首次创建)
+    if(dataList.isEmpty())
+    {
+        sqlCmd.append("create table accessToken(updateTime int , token string)");
+        db->createTable(sqlCmd);
+    }
 }
 
 AccessToken::~AccessToken()
 {
     if(tokenClient)
         delete tokenClient;
+    if(db)
+    {
+        delete db;
+    }
 }
 
 QString AccessToken::tokenGetFromServer()
@@ -47,15 +70,17 @@ void AccessToken::run()
     while(1)
     {
         //判断本地token是否有效
-        tokenGetFromCache();
+        //tokenGetFromCache();
+        tokenGetFromDB();
         if(tokenValid == false)
         {
             QString httpData = tokenGetFromServer();
             accessTokenValue = dealHttpData(httpData);
-            tokenGetTime = tokenSaveToCache(accessTokenValue);
+            //tokenGetTime = tokenSaveToCache(accessTokenValue);
+            tokenGetTime = tokenSaveToDB(accessTokenValue);
         }
 
-        sleep(10);
+        sleep(60);
         //qDebug()<<"获取tokenAPI: "<<tokenValue();
     }
     qDebug()<<"-----------token线程结束-----------------";
@@ -123,6 +148,52 @@ QString AccessToken::dealHttpData(QString data)
     return accessToken;
 }
 
+void AccessToken::tokenGetFromDB()
+{
+    qDebug()<<"--------获取数据库中 access_token-----------";
+
+	QDateTime currTime = QDateTime::currentDateTime();   //获取当前时间  
+	int timeT = currTime.toTime_t();   //将当前时间转为时间戳 
+
+    QString sqlCmd;
+    QList<QString> dataList;
+    sqlCmd.clear();
+    sqlCmd.append("SELECT * FROM accessToken");
+    dataList = db->sqlQuery(sqlCmd);
+    if(dataList.isEmpty())
+    {
+        qDebug()<<"获取数据为空，token无效";
+        accessTokenValue.clear();
+        tokenGetTime = 0;
+        tokenValid = false;
+        return;
+    }
+
+
+	QStringList strList = dataList.at(0).split(",");
+	QString time = strList.at(0);
+	QString token = strList.at(1);
+
+	//qDebug()<<"token: "<<token;
+	//qDebug()<<"time: "<<time;
+ 
+    tokenGetTime = time.toInt();
+    accessTokenValue = token;
+
+    //判断是否token是否过期,有效期为7200秒
+    if((timeT-7000) < time.toInt())
+    {
+        qDebug()<<"token有效";
+        tokenValid = true;
+    }
+    else
+    {
+        qDebug()<<"token无效";
+        accessTokenValue.clear();
+        tokenGetTime = 0;
+        tokenValid = false;
+    }
+}
 void AccessToken::tokenGetFromCache()
 {
     qDebug()<<"--------获取本地缓存 access_token-----------";
@@ -180,6 +251,33 @@ void AccessToken::tokenGetFromCache()
     }
 }
 
+int AccessToken::tokenSaveToDB(QString token)
+{
+    qDebug()<<"--------将access_token存储到数据库----------";
+    //获取当前时间戳
+	QDateTime time = QDateTime::currentDateTime();   //获取当前时间  
+	int timeT = time.toTime_t();   //将当前时间转为时间戳 
+
+    QString sqlCmd;
+    sqlCmd.clear();
+    sqlCmd.append("DELETE FROM accessToken");
+    //sqlCmd.append("truncate table accessToken");
+    db->sqlExec(sqlCmd);
+
+    sqlCmd.clear();
+    sqlCmd.append("INSERT INTO accessToken VALUES(?,?)");
+    QString data = QString("%1,%2").arg(timeT).arg(token);
+    QList<QString> dataList;
+    dataList.append(data);
+
+    db->insertData(sqlCmd, dataList);
+
+	//qDebug()<<"token: "<<token;
+	//qDebug()<<"time: "<<timeT;
+
+    tokenValid = true;
+    return timeT;
+}
 //将token缓存至本地
 int AccessToken::tokenSaveToCache(QString token)
 {
