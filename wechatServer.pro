@@ -32,7 +32,9 @@ HEADERS += accessToken.h \
            threadhandle.h \
            tokenGet.h \
            dbOperation.h \
-           dealDevice.h
+           dealDevice.h \
+           userAuth.h \
+           deviceAuth.h
 
 SOURCES += accessToken.cpp \
            dealMessage.cpp \
@@ -46,7 +48,9 @@ SOURCES += accessToken.cpp \
            threadhandle.cpp \
            tokenGet.cpp \
            dbOperation.cpp \
-           dealDevice.cpp
+           dealDevice.cpp \
+           userAuth.cpp \
+           deviceAuth.cpp
 
 unix:include($$PWD/eventdispatcher_libev/eventdispatcher_libev.pri)
 

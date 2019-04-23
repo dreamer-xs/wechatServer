@@ -424,11 +424,15 @@ QString DealDevice::dealImageMessage(QDomDocument xml)
 }
 
 
-void DealDevice::messageRecv(QString recvData)
+void DealDevice::messageRecv(QString recvData, int socket)
 {
     qDebug()<<"------------接收设备消息--------------";
 
     qDebug()<<recvData;
+
+    QString id = "8888";
+    int status = 1;
+    dev.saveToDB(id, status, socket);
 
     emit messageReady(recvData);
 

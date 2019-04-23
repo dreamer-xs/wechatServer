@@ -36,10 +36,8 @@ int main(int argc, char **argv)
     token.start();
 
     TcpServer wechatServer;
-    wechatServer.listen(QHostAddress::Any,80);
+    wechatServer.listen(QHostAddress::AnyIPv4,80);
 
-    TcpServer deviceServer;
-    deviceServer.listen(QHostAddress::Any,800);
 # else
 
     HttpServer h;

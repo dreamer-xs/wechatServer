@@ -7,13 +7,13 @@ AccessToken::AccessToken()
     accessTokenValue.clear();
     tokenGetTime = 0;
 
-    QString dbName = "wechat";
+    QString dbName = "wechat.db";
     QString tableName = "accessToken";
     db = new DbOperation(dbName);
 
     QString sqlCmd;
 
-    //判断表是否存在
+    //判断表是否存在,如果是第一次登陆则先创建表
     sqlCmd.clear();
     //sqlCmd.append(QString("SELECT COUNT(*) FROM sqlite_master where type='table' and name='%1'").arg(tableName));
     sqlCmd.append("SELECT COUNT(*) FROM sqlite_master where type='table' and name='accessToken'");
@@ -21,10 +21,15 @@ AccessToken::AccessToken()
     dataList = db->sqlQuery(sqlCmd);
 
     //如果该表不存在则创建表(首次创建)
-    if(dataList.isEmpty())
+    if(dataList.at(0).toInt() == 0)
     {
+        sqlCmd.clear();
         sqlCmd.append("create table accessToken(updateTime int , token string)");
         db->createTable(sqlCmd);
+    }
+    else
+    {
+        qDebug()<<"表已存在，无需创建";
     }
 }
 
@@ -32,10 +37,9 @@ AccessToken::~AccessToken()
 {
     if(tokenClient)
         delete tokenClient;
+
     if(db)
-    {
         delete db;
-    }
 }
 
 QString AccessToken::tokenGetFromServer()
@@ -80,6 +84,7 @@ void AccessToken::run()
             tokenGetTime = tokenSaveToDB(accessTokenValue);
         }
 
+        //qDebug()<<"DB connection:"<<DbOperation::getConnection();
         sleep(60);
         //qDebug()<<"获取tokenAPI: "<<tokenValue();
     }
@@ -259,11 +264,13 @@ int AccessToken::tokenSaveToDB(QString token)
 	int timeT = time.toTime_t();   //将当前时间转为时间戳 
 
     QString sqlCmd;
+    //先清除失效的数据
     sqlCmd.clear();
     sqlCmd.append("DELETE FROM accessToken");
-    //sqlCmd.append("truncate table accessToken");
-    db->sqlExec(sqlCmd);
+    //db->sqlExec(sqlCmd);
+    db->delData(sqlCmd);
 
+    //插入新获取的数据
     sqlCmd.clear();
     sqlCmd.append("INSERT INTO accessToken VALUES(?,?)");
     QString data = QString("%1,%2").arg(timeT).arg(token);

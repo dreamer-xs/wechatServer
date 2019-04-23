@@ -11,6 +11,13 @@
 #include "dbOperation.h"
 #include <unistd.h>
 
+/*
+ *Accesstoken-> 独立获取并维护有效token线程
+ *60s判断一次token是否过期
+ *过期则从微信服务器获取新的token，并存入数据库中
+ *
+ *TokenGet   -> 获取有效token接口
+ */
 
 
 class AccessToken : public QThread

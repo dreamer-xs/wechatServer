@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QFile>
+#include "dbOperation.h"
 
 
 
@@ -16,12 +17,13 @@ public:
     ~TokenGet();
 
     QString tokenValue();
-    void tokenGetFromCache();
+    void tokenGetFromDB();
 
 private:
     QString accessTokenValue;
     QString tokenFilePath;
     int tokenGetTime;
+    DbOperation* db;
 };
 
 #endif // TOKENGET_H

@@ -20,7 +20,6 @@ public:
     bool createTable(QString sqlCmd);
 
     bool insertData(QString sqlCmd, QList<QString> dataList);
-    bool insertData();
 
     bool updateData(QString sqlCmd);
 
@@ -29,10 +28,11 @@ public:
     bool sqlExec(QString sqlCmd);
     bool delData(QString sqlCmd);
     bool delTable(QString sqlCmd);
+    static int getConnection();
 
 private:
     QSqlDatabase db;
-    QSqlQuery sql_query;
+    static int connection;
 };
 
 #endif

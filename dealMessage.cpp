@@ -6,13 +6,12 @@
 //3. xxx
 DealMessage::DealMessage()
 {
-
 }
 
 DealMessage::~DealMessage()
 {
-
 }
+
 //      接收格式
 //      "POST /?signature=74ababdbd917619d6bddb1e1799d901c8e8a923f&timestamp=1554721572&nonce=1039027534&openid=oQAcB1CGfUF-KHu-1Hdep23DV9Ok HTTP/1.1
 //      User-Agent: Mozilla/4.0
@@ -237,18 +236,74 @@ QString DealMessage::dealTextMessage(QDomDocument xml)
     qDebug()<<content;
     qDebug()<<msgId;
 
+#if 0
+    qDebug()<<"-----------获取deviceID并且发送数据--------------";
+    UserAuth userDB;
+    bool valid = userDB.isValid(fromUserName);
+    qDebug()<<"valid: "<<valid;
+
+    if(!valid)
+    {
+        QString id = "8888";
+        userDB.saveToDB(fromUserName, id);
+    }
+    int socket = userDB.getSocket(fromUserName);
+    qDebug()<<"设备socket: " <<socket;
+
+    if(socket > 0)
+    {
+        QTcpSocket devSocket;
+        devSocket.setSocketDescriptor(socket);
+        qDebug()<<"SocketState: "<<devSocket.state();
+
+        devSocket.write(content.toUtf8());
+    }
+    qDebug()<<"--------------------------------------------";
+
+#endif
+
+    /*
+    if(content.contains("设备ID") == 0)
+    {
+        qDebug()<<"绑定设备ID";
+    }
+    else if(QString::compare(content, "拍照") == 0)
+    */
     if(QString::compare(content, "拍照") == 0)
     {
         TokenGet t;
         QString m_token = t.tokenValue();
-        QString m_type = "image";
-        //QString m_mediaPath = "picture/test.jpg";
-        QString m_mediaPath = "picture/kobe.jpg";
+#if 1
+        //简单的QTJson数据构造
+        QJsonObject simp_ayjson;
+        simp_ayjson.insert("expires_in", 7200);
+        simp_ayjson.insert("token", m_token); 
+        QJsonDocument document;
+        document.setObject(simp_ayjson);
 
-        MediaUpLoad m(m_token, m_type, m_mediaPath);
-        QString mediaId = m.mediaIdGet();
+        QByteArray simpbyte_array = document.toJson(QJsonDocument::Compact);
+        QString simpjson_str(simpbyte_array);
+        qDebug() << simpjson_str;
+#endif
+        QString url("http://viphk.ngrok.org:10031");
+        HttpClient h;
+        QString data = h.post(url, simpjson_str);
 
-        return createImage(fromUserName, toUserName, m_type, mediaId);
+        qDebug()<<"---------------接收客户端数据-------------------";
+        qDebug()<<data;
+
+        if(!data.isEmpty())
+        {
+            qDebug()<<"------------------------------------------------";
+
+            qDebug()<<"---------------获取mediaID--------------------";
+            QString mediaId = getJsonValue(data,"mediaID");
+            qDebug()<<"mediaID: "<<mediaId;
+            QString m_type = "image";
+            return createImage(fromUserName, toUserName, m_type, mediaId);
+        }
+        else
+            return createText(fromUserName, toUserName, msgType, content);
     }
     else if(QString::compare(content, "监控") == 0)
     {
@@ -604,4 +659,32 @@ void DealMessage::messageRecv(QString recvData)
     }
 
     messageJoint(httpBody);
+}
+
+QString DealMessage::getJsonValue(QString data, QString key)
+{
+    qDebug()<<"--------------解析json-----------------";
+
+    //解析JSON
+    QJsonParseError json_error;
+    QString value;
+
+    QJsonDocument data_parse_doucment = QJsonDocument::fromJson(data.toUtf8(), &json_error); //QTJSON所有的元素
+    if (json_error.error == QJsonParseError::NoError) //检查json是否有错误
+    {
+        if (data_parse_doucment.isObject())
+        {
+            QJsonObject obj = data_parse_doucment.object(); //开始解析json对象
+            if (obj.contains(key)) //如果包含该key
+            {
+                QJsonValue t_value = obj.take(key);
+                if (t_value.isString())
+                {
+                    value = t_value.toVariant().toString();
+                }
+            }
+        }
+    }
+    qDebug() << "value: "<< value;
+    return value;
 }

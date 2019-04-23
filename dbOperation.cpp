@@ -1,9 +1,17 @@
 #include "dbOperation.h"
 
+int DbOperation::connection = 0;
 DbOperation::DbOperation(QString dbName)
-//DbOperation::DbOperation()
 {
-    db = QSqlDatabase::addDatabase("QSQLITE"); //建立并打开数据库
+    if(QSqlDatabase::contains("GBond"))
+        db = QSqlDatabase::database("GBond");
+    else
+    {
+        connection++;
+        db = QSqlDatabase::addDatabase("QSQLITE", "GBond");
+    }
+
+    //db = QSqlDatabase::addDatabase("QSQLITE"); //建立并打开数据库
     db.setDatabaseName(dbName);
     if (!db.open())
     {
@@ -13,12 +21,17 @@ DbOperation::DbOperation(QString dbName)
     {
         qDebug() << "Succeed to connect database: "<< dbName;
     }
+}
 
-    sql_query = QSqlQuery(db);
+int DbOperation::getConnection()
+{
+    return connection;
 }
 
 bool DbOperation::createTable(QString sqlCmd)
 {
+    QSqlQuery sql_query = QSqlQuery(db);
+    qDebug()<<"sql: "<<sqlCmd;
     //创建表格
     //if(!sql_query.exec("create table student(id int primary key, name text, age int)"))
     if(!sql_query.exec(sqlCmd))
@@ -34,6 +47,8 @@ bool DbOperation::createTable(QString sqlCmd)
 
 bool DbOperation::insertData(QString sqlCmd, QList<QString> dataList)
 {
+    QSqlQuery sql_query = QSqlQuery(db);
+    qDebug()<<"sql: "<<sqlCmd;
     sql_query.exec("PRAGMA synchronous = OFF;"); //关闭写同步执行
 
     //qDebug()<<"关闭写同步执行, 显式开启事务执行";
@@ -60,28 +75,10 @@ bool DbOperation::insertData(QString sqlCmd, QList<QString> dataList)
     return true;
 }
 
-bool DbOperation::insertData()
-{
-    sql_query.exec("PRAGMA synchronous = OFF;"); //关闭写同步执行
-
-    //qDebug()<<"关闭写同步执行, 显式开启事务执行";
-    sql_query.exec("begin"); //显式开启事务执行
-    //QSqlDatabase::database().transaction();
-
-    sql_query.prepare("INSERT INTO data VALUES(?,?)");
-    for(int i=0;i<WRITECOUNT;i++)
-    {
-        sql_query.addBindValue(i);
-        sql_query.addBindValue(WRITECOUNT-i);
-        sql_query.exec();
-    }
-    sql_query.exec("commit");
-    //QSqlDatabase::database().commit();
-    return true;
-}
-
 bool DbOperation::updateData(QString sqlCmd)
 {
+    QSqlQuery sql_query = QSqlQuery(db);
+    qDebug()<<"sql: "<<sqlCmd;
     //修改数据
     //sql_query.exec("update student set name = \"QT\" where id = 1");
     sql_query.exec(sqlCmd);
@@ -98,6 +95,8 @@ bool DbOperation::updateData(QString sqlCmd)
 
 QList<QString> DbOperation::sqlQuery(QString sqlCmd)
 {
+    QSqlQuery sql_query = QSqlQuery(db);
+    qDebug()<<"sql: "<<sqlCmd;
     QList<QString> dataList;
     int ret = sql_query.exec(sqlCmd); //查询数据
     int count = 0;
@@ -107,6 +106,7 @@ QList<QString> DbOperation::sqlQuery(QString sqlCmd)
     }
     else
     {
+        qDebug()<<"begin to query";
         //qDebug()<<"sql_query: "<<sql_query.isSelect();
         while(sql_query.next()) //顺序读取每一行
         {
@@ -126,7 +126,7 @@ QList<QString> DbOperation::sqlQuery(QString sqlCmd)
                     data.append(",");
                 }
             }
-            //qDebug()<<data;
+            qDebug()<<"sqlQuery: "<<data;
             dataList<<data;
 
             //qDebug()<<"-----------";
@@ -137,7 +137,8 @@ QList<QString> DbOperation::sqlQuery(QString sqlCmd)
             //qDebug()<<"count: "<<count<<" value:"<<sql_query.value("heart").toInt()<<" "<<sql_query.value("breath").toInt();
             count++;
         }
-        //qDebug()<<"count: "<<count;
+        qDebug()<<"end to query";
+        qDebug()<<"count: "<<count;
     }
     if(count <= 0)
         return dataList;
@@ -157,10 +158,11 @@ QList<QString> DbOperation::sqlQuery(QString sqlCmd)
     return dataList;
 }
 
+//删除数据
 bool DbOperation::delData(QString sqlCmd)
 {
-    //删除数据
-    //sql_query.exec("delete from student where id = 1");
+    QSqlQuery sql_query = QSqlQuery(db);
+    qDebug()<<"sql: "<<sqlCmd;
     sql_query.exec(sqlCmd);
     if(!sql_query.exec())
     {
@@ -175,19 +177,20 @@ bool DbOperation::delData(QString sqlCmd)
 
 bool DbOperation::sqlExec(QString sqlCmd)
 {
-    //qDebug()<<"exec sql: " <<sqlCmd;
+    QSqlQuery sql_query = QSqlQuery(db);
+    qDebug()<<"sql: "<<sqlCmd;
     sql_query.exec(sqlCmd);
     if(sql_query.exec())
     {
-        qDebug() << sql_query.lastError();
+        qDebug() << "exec sql failed" <<sql_query.lastError();
         return false;
     }
-    else
 
     return true;
 }
 bool DbOperation::delTable(QString sqlCmd)
 {
+    QSqlQuery sql_query = QSqlQuery(db);
     //删除表格
     //sql_query.exec("drop table student");
     sql_query.exec(sqlCmd);
@@ -205,7 +208,7 @@ bool DbOperation::delTable(QString sqlCmd)
 DbOperation::~DbOperation()
 {
     //关闭数据库
-    db.close();
+    //db.close();
     qDebug()<<"close database";
 }
 

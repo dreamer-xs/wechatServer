@@ -8,6 +8,7 @@
 #include "mediaUpLoad.h"
 #include "accessToken.h"
 #include "tokenGet.h"
+#include "deviceAuth.h"
 
 class DealDevice : public QObject
 {
@@ -33,10 +34,10 @@ signals:
     void messageReady(QString);
 
 public slots:
-    void messageRecv(QString recvData);
+    void messageRecv(QString recvData, int socket);
 
 private:
-
+    DeviceAuth dev;
 };
 
 #endif // DEALDEVICE_H

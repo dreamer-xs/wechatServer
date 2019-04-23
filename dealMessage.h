@@ -5,9 +5,13 @@
 #include <QDebug>
 #include <QByteArray>
 #include <QDomDocument>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include "mediaUpLoad.h"
+#include "httpClient.h"
 #include "accessToken.h"
 #include "tokenGet.h"
+#include "userAuth.h"
 
 class DealMessage : public QObject
 {
@@ -28,6 +32,7 @@ public:
     QString dealTextMessage1(QDomDocument xml);
 
     void messageJoint(QString httpBody);
+	QString getJsonValue(QString data, QString key);
 
 signals:
     void messageReady(QString);

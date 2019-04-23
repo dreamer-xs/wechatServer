@@ -2,9 +2,13 @@
 
 TokenGet::TokenGet()
 {
-    tokenFilePath = "./token.txt";
     accessTokenValue.clear();
     tokenGetTime = 0;
+
+    QString dbName = "wechat.db";
+    QString tableName = "accessToken";
+    db = new DbOperation(dbName);
+
 }
 
 TokenGet::~TokenGet()
@@ -27,56 +31,48 @@ QString TokenGet::tokenValue()
     else
     {
         qDebug()<<"token无效";
-        tokenGetFromCache();
+        tokenGetFromDB();
     }
 
     qDebug()<<accessTokenValue;
     return accessTokenValue;
 }
 
-void TokenGet::tokenGetFromCache()
+void TokenGet::tokenGetFromDB()
 {
-    qDebug()<<"--------获取本地缓存 access_token-----------";
+    qDebug()<<"--------获取数据库中 access_token-----------";
 
 	QDateTime currTime = QDateTime::currentDateTime();   //获取当前时间  
 	int timeT = currTime.toTime_t();   //将当前时间转为时间戳 
 
-    QFile file(tokenFilePath);
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    QString sqlCmd;
+    QList<QString> dataList;
+    sqlCmd.clear();
+    sqlCmd.append("SELECT * FROM accessToken");
+    dataList = db->sqlQuery(sqlCmd);
+    if(dataList.isEmpty())
     {
-        qDebug()<<"Failed to open: "<<tokenFilePath;
-
+        qDebug()<<"获取数据为空，token无效";
         accessTokenValue.clear();
         tokenGetTime = 0;
-		return;
+        return;
     }
 
-	QStringList strList;
-	QString token;
-	QString time;
-	while (!file.atEnd())
-	{
-		QByteArray line = file.readLine();
-		QString str(line);
-        str = str.trimmed();      //去掉行尾换行符
-		//qDebug() << str;
 
-		strList = str.split("=");
-		if(QString::compare(strList.at(0), "access_token") == 0)
-			token = strList.at(1);
-		if(QString::compare(strList.at(0), "time") == 0)
-			time = strList.at(1);
-	}
-	file.close();
+	QStringList strList = dataList.at(0).split(",");
+	QString time = strList.at(0);
+	QString token = strList.at(1);
+
 	//qDebug()<<"token: "<<token;
 	//qDebug()<<"time: "<<time;
  
+    tokenGetTime = time.toInt();
+    accessTokenValue = token;
+
     //判断是否token是否过期,有效期为7200秒
     if((timeT-7000) < time.toInt())
     {
         qDebug()<<"token有效";
-        tokenGetTime = time.toInt();
-        accessTokenValue = token;
     }
     else
     {

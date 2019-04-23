@@ -22,8 +22,6 @@ void TcpServer::setMaxPendingConnections(int numConnections)
 
 void TcpServer::incomingConnection(qintptr socketDescriptor) //多线程必须在此函数里捕获新连接
 {
-    qDebug()<<"socketDescriptor: " << socketDescriptor;
-
     if (tcpClient->size() > maxPendingConnections())//继承重写此函数后，QTcpServer默认的判断最大连接数失效，自己实现
     {
         QTcpSocket tcp;
@@ -38,7 +36,7 @@ void TcpServer::incomingConnection(qintptr socketDescriptor) //多线程必须�
     qint16 peerPort = tcpTemp->peerPort();
     qint16 localPort = tcpTemp->localPort();
 
-    qDebug()<<"localPort: "<<localPort;
+    qDebug()<<"serverIP:"<<localIp<<" Port:"<<localPort<<" peerIP:"<< peerIp<<" Port:"<<peerPort;
 
     connect(tcpTemp,&TcpSocket::sockDisConnect,this,&TcpServer::sockDisConnectSlot);//NOTE:断开连接的处理，从列表移除，并释放断开的Tcpsocket，此槽必须实现，线程管理计数也是考的他
     connect(this,&TcpServer::sentDisConnect,tcpTemp,&TcpSocket::disConTcp);//断开信号

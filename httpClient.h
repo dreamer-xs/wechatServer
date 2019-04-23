@@ -17,6 +17,7 @@ public:
     HttpClient();
     ~HttpClient();
     QString get(QString);        //初始化函数
+    QString post(QString urlTmp, QString data);
 
 signals:
     //void httpDataReceived(QString);
